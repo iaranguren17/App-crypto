@@ -5,7 +5,7 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-class Encriptar():
+class Cripto():
     def __init__(self):
         pass
 
@@ -14,7 +14,7 @@ class Encriptar():
         return salt
 
     def crear_token(self, salt, mensaje):
-        mensaje_bytes = mensaje.encode()
+        mensaje_bytes = mensaje.encode() #Transforma la parte 
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
@@ -24,8 +24,17 @@ class Encriptar():
         key = base64.urlsafe_b64encode(kdf.derive(mensaje_bytes))
         return key
 
+prueba = Cripto()
+s1 = prueba.crear_salt()
+t1 = prueba.crear_token(s1, "hola")
+t2 = prueba.crear_token(s1,"hola")
+t1 =t1.hex()
+t2= t2.hex()
+print(t1)
+print(t2)
 
-
+print(t1 == t2)
+    
 """password = b"notas"
 print(password)
 salt = os.urandom(16)
