@@ -22,16 +22,17 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
 
 
         print("\n", welcome_messg)
-        
-        accion = int(input("Selecciona una opción: \n1-Registrarse \n2-Iniciar sesión \n3-Salir\nIntroduce el número de la acción: "))
-        
-        if accion == 1:
-            self.registrar_usuario()
-        elif accion == 2:
-            self.login()
-        elif accion == 3:
-            print("\nMuchas gracias, hasta la próxima\nFIN DE PROGRAMA") 
-            return
+        fin = False
+        while not fin:
+            accion = int(input("Selecciona una opción: \n1-Registrarse \n2-Iniciar sesión \n3-Salir\nIntroduce el número de la acción: "))
+            
+            if accion == 1:
+                self.registrar_usuario()
+            elif accion == 2:
+                self.login()
+            elif accion == 3:
+                print("\nMuchas gracias, hasta la próxima\nFIN DE PROGRAMA") 
+                return
     def registrar_usuario(self):
         print("--------------------------------------------------------------------------------")
         print("REGISTRARSE")
