@@ -175,6 +175,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             intentos -= 1
             if intentos == 0:
                 print("Intentos máximos permitidos")
+                cripto.encriptar_json()
                 return True
             print("Contraseña incorrecta. Intentos restantes: "+ str(intentos))
             contraseña_usuario = getpass.getpass("Contraseña: ")
