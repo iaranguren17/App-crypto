@@ -2,54 +2,41 @@
 import json
 import os
 import getpass
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import base64
 
-class Menu:
-    def __init__(self):
-        # No es necesario inicializar nada si no hay atributos, pero este método es necesario para instanciar la clase.
-        pass
-    
-    def pedir_contraseña(self):
-        contraseña_segura = False
-        while not contraseña_segura:
-            contraseña = str(getpass.getpass("Introduce contraseña: "))
-            contraseña_segura = self._verificar_contraseña(contraseña)
-        print("Contraseña segura")
-        return contraseña  
-    
-    def _verificar_contraseña(self, contraseña):
-        if len(contraseña) < 12:
-            print("Contraseña demasiado pequeña")
-            print("La contraseña debe tener mínimo 12 caracteres, una mayúscula, una minúscula y un número")
-            return False
-        
-        mayus = False
-        minus = False
-        numero = False
-        
-        for i in contraseña:
-            if i.isupper():
-                mayus = True
-            elif i.islower():
-                minus = True
-            elif i.isdigit():
-                numero = True
+clave = Fernet.generate_key()
+clave_str = clave.decode('utf-8')
+ruta = "Base de datos/clave_servidor.txt"
+with open (ruta, 'w')as archivo:
+    archivo.write(clave_str)
 
-        if not mayus:
-            print("Falta una letra mayúscula")
-        if not minus:
-            print("Falta una letra minúscula")
-        if not numero:
-            print("Falta un número")
-        if numero and minus and mayus:
-            repetir_contraseña = getpass.getpass("Confirmar contraseña: ")
-            if contraseña != repetir_contraseña:
-                print("Contraseñas incorrectas")
-                return False
-            else:
-                return True
 
-        return False
 
-# Instancia de la clase y llamada al método
-a = Menu()
-a.pedir_contraseña()
+
+
+
+
+"""
+password = b"notas"
+print(password)
+salt = os.urandom(16)
+kdf = PBKDF2HMAC(
+    algorithm=hashes.SHA256(),
+    length=32,
+    salt=salt,
+    iterations=480000,
+)
+key = base64.urlsafe_b64encode(kdf.derive(password))
+print("token:", key)
+f = Fernet()
+
+contra_crip = f.encrypt(key)
+print("key_encriptada: ", contra_crip)
+contraseña = f.decrypt(contra_crip)
+print("token: ",contraseña)
+
+
+"""

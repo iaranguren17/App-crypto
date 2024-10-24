@@ -43,7 +43,9 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         print("--------------------------------------------------------------------------------")
         print("REGISTRARSE")
         print("--------------------------------------------------------------------------------")
-
+        
+        cripto = Cripto()              #Creamos una clase Cripto
+        #cripto.desencriptar_json()
         ruta_archivo = os.path.join("Base de datos", "usuarios.json")
         if os.path.exists(ruta_archivo):
             with open(ruta_archivo, 'r') as archivo:
@@ -69,22 +71,19 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 return True
         
         contraseña = self.pedir_contraseña() #Creamos una contraseña
-        cripto = Cripto()              #Creamos una clase Cripto
         salt_usuario = cripto.crear_salt()  #Creamos un salt por usuario
         token_usuario = cripto.crear_token(salt_usuario, contraseña)  #Y el token de la contraseña
-       
-       
-        "Encriptar token y salt"
-       
-       
+
         usuarios[nombre_usuario]= {
             "salt": salt_usuario.hex(),
             "token": token_usuario.hex()
         }
-
+        
         with open(ruta_archivo, 'w') as archivo:
             json.dump(usuarios, archivo, indent=4)
         
+        #cripto.encriptar_json()
+
         print("Usuario registrado correctamente")
         print("--------------------------------------------------------------------------------")
         
