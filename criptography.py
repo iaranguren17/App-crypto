@@ -5,7 +5,7 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import json 
-
+import time
 class Cripto():
     def __init__(self):
         pass
@@ -33,27 +33,6 @@ class Cripto():
         clave = clave.encode('utf-8')
         return clave
 
-    """
-    def desencriptar_json(self):
-        ruta= "Base de datos/usuarios.json"
-        if os.path.exists(ruta):
-            with open(ruta, 'rb') as archivo: #'rb' read in bits
-                datos_encriptados = archivo.read()
-        
-        if len(datos_encriptados) == 0:
-            return
-       
-        clave = self.leer_clave_servidor()
-        fernet = Fernet(clave)
-        datos_desencriptados = fernet.decrypt(datos_encriptados)
-        json_desencriptado = json.loads(datos_desencriptados.decode('utf-8'))
-        return self.sobrescribir_json(ruta, json_desencriptado)
-"""
-    def sobrescribir_json(self,ruta, contenido):
-        with open(ruta, 'w') as archivo:
-            json.dump(contenido, archivo, indent=4)
-        return 
-
     def encriptar_json(self):
         ruta= "Base de datos/usuarios.json"
         if os.path.exists(ruta):
@@ -62,14 +41,34 @@ class Cripto():
         clave = self.leer_clave_servidor()
         fernet = Fernet(clave)
         datos_encriptados = fernet.encrypt(datos_desencriptados)
-        return self.sobrescribir_json(ruta, datos_encriptados)
+        with open(ruta, 'wb') as archivo:  # Escribir en modo binario
+            archivo.write(datos_encriptados)
+        archivo.close()
+        return
+
+
+    def desencriptar_json(self):
+        ruta= "Base de datos/usuarios.json"
+        if os.path.exists(ruta):
+            with open(ruta, 'rb') as archivo: #'rb' read in bits
+                datos_encriptados = archivo.read()
+        
+        if len(datos_encriptados) == 0:
+            return 
+       
+        clave = self.leer_clave_servidor()
+        fernet = Fernet(clave)
+        datos_desencriptados = fernet.decrypt(datos_encriptados)
+        with open(ruta, 'wb') as archivo:  
+            archivo.write(datos_desencriptados)
+        
+        archivo.close()
+        return 
 
 
 
 
 
-prueba = Cripto()
-prueba.encriptar_json
 """
 s1 = prueba.crear_salt()
 t1 = prueba.crear_token(s1, "hola")

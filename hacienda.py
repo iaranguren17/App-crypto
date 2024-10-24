@@ -3,6 +3,7 @@ import os
 import getpass
 from criptography import Cripto
 
+
 class Menus():
     def __init__(self):
         pass
@@ -45,7 +46,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         print("--------------------------------------------------------------------------------")
         
         cripto = Cripto()              #Creamos una clase Cripto
-        #cripto.desencriptar_json()
+        cripto.desencriptar_json()
         ruta_archivo = os.path.join("Base de datos", "usuarios.json")
         if os.path.exists(ruta_archivo):
             with open(ruta_archivo, 'r') as archivo:
@@ -63,10 +64,12 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             while option not in [1,2,3] :
                 option= int(input("Por favor, elige una opción correcta: \n"))
             if option == 1:
+                cripto.encriptar_json()
                 self.login()
             elif option == 2:
                 nombre_usuario = str(input("Escribe de nuevo el nombre de usuario: "))
             else:
+                cripto.encriptar_json()
                 print("\nMuchas gracias, hasta la próxima\nFIN DE PROGRAMA")
                 return True
         
@@ -82,8 +85,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         with open(ruta_archivo, 'w') as archivo:
             json.dump(usuarios, archivo, indent=4)
         
-        #cripto.encriptar_json()
-
+        cripto.encriptar_json()
         print("Usuario registrado correctamente")
         print("--------------------------------------------------------------------------------")
         
@@ -137,6 +139,8 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         print("--------------------------------------------------------------------------------")
         print("INICIO DE SESIÓN")
         print("--------------------------------------------------------------------------------")
+        cripto = Cripto()
+        cripto.desencriptar_json()
         ruta_archivo = os.path.join("Base de datos", "usuarios.json")
         if os.path.exists(ruta_archivo):
             with open(ruta_archivo, 'r') as archivo:
@@ -164,9 +168,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         token_usuario = usuarios[nombre_usuario]["token"]
         salt_usuario = usuarios[nombre_usuario]["salt"]
         salt_usuario = bytes.fromhex(salt_usuario)
-        """Desencriptar token y salt"""
 
-        cripto = Cripto()
         token = cripto.crear_token(salt_usuario, contraseña_usuario )
         token = token.hex()
         while token_usuario != token:
@@ -178,10 +180,11 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             contraseña_usuario = getpass.getpass("Contraseña: ")
             token = cripto.crear_token(salt_usuario, contraseña_usuario )
             token =token.hex()
+        cripto.encriptar_json()
         print("Inicio de sesión exitoso")
-        return self.pantalla_morosos(nombre_usuario, contraseña_usuario)
+        return self.pantalla_morosos()
     
-    def pantalla_morosos(self, nombre_usuario, contraseña_usuario):
+    def pantalla_morosos(self):
         ...
 
 
