@@ -189,7 +189,8 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             elif accion == 2:
                 fin = self.borrar_moroso()
             else: 
-                fin = self.salir()
+                print("\nCargando página anterior...")
+                fin = True
         
 
     def nuevo_moroso(self):
