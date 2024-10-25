@@ -236,7 +236,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         return
                     
     
-    def borrar_moroso():
+    def borrar_moroso(self):
         ruta_archivo = os.path.join("Base de datos", "morosos.json")
         if os.path.exists(ruta_archivo):
             with open(ruta_archivo, 'r') as archivo:
@@ -256,7 +256,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         with open(ruta_archivo, 'w') as archivo:
             json.dump(morosos, archivo, indent=4)
 
-        print("Moroso borrado correctamente correctamente")
+        print("Moroso borrado correctamente")
         print("--------------------------------------------------------------------------------")
         return
 
