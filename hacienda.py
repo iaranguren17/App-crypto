@@ -79,8 +79,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             "token": token_usuario.hex()
         }
         
-        with open(ruta_archivo, 'w') as archivo:
-            json.dump(usuarios, archivo, indent=4)
+        self.subir_json(ruta_archivo, usuarios)
         
         cripto.encriptar_json()
         print("Usuario registrado correctamente")
@@ -211,8 +210,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             "endeudado": tiempo_deuda
         }
         
-        with open(ruta_archivo, 'w') as archivo:
-            json.dump(morosos, archivo, indent=4)
+        self.subir_json(ruta_archivo, morosos)
 
         print("Moroso añadido correctamente")
         print("--------------------------------------------------------------------------------")
@@ -229,8 +227,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             return
         
         del morosos[numero_ss]
-        with open(ruta_archivo, 'w') as archivo:
-            json.dump(morosos, archivo, indent=4)
+        self.subir_json(ruta_archivo, morosos)
 
         print("Moroso borrado correctamente")
         print("--------------------------------------------------------------------------------")
@@ -249,6 +246,10 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         else:
             print(f"Advertencia: El archivo {ruta_archivo} no existe.")
             return {}
+        
+    def subir_json(self, ruta_archivo, list):
+        with open(ruta_archivo, 'w') as archivo:
+            json.dump(list, archivo, indent=4)
 
 
 
