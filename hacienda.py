@@ -8,6 +8,10 @@ class Menus():
     def __init__(self):
         pass
     
+    def salir(self):
+        print("\nMuchas gracias, hasta la próxima\nFIN DE PROGRAMA")
+        return True
+
     def inicio(self):
         welcome_messg = """ __    __   ______    ______   ______  ________  __    __  _______    ______        
 /  |  /  | /      \  /      \ /      |/        |/  \  /  |/       \  /      \       
@@ -31,14 +35,14 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
 
             accion = int(input("Selecciona una opción: \n1-Registrarse \n2-Iniciar sesión \n3-Salir\nIntroduce el número de la acción: "))
             while accion not in [1,2,3]:
-                accion = int(input("Por favor escoge una opción correcta"))
+                accion = int(input("Por favor escoge una opción correcta: "))
             if accion == 1:
                 fin = self.registrar_usuario()
             elif accion == 2:
                 fin = self.login()
-            else: 
-                fin = True
-        print("\nMuchas gracias, hasta la próxima\nFIN DE PROGRAMA")
+            else:
+                fin = self.salir()
+        
    
     def registrar_usuario(self):
         print("--------------------------------------------------------------------------------")
@@ -70,8 +74,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 nombre_usuario = str(input("Escribe de nuevo el nombre de usuario: "))
             else:
                 cripto.encriptar_json()
-                print("\nMuchas gracias, hasta la próxima\nFIN DE PROGRAMA")
-                return True
+                return self.salir()
         
         contraseña = self.pedir_contraseña() #Creamos una contraseña
         salt_usuario = cripto.crear_salt()  #Creamos un salt por usuario
@@ -157,7 +160,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         while nombre_usuario not in usuarios:
             opcion=int(input("Usuario incorrecto.\n1:Volver a intentar\n2:Salir\n"))
             while opcion not in [1,2]:
-                opcion = int(input("Por favor, elija una opción válida\n" ))
+                opcion = int(input("Por favor, elija una opción válida: \n" ))
             if opcion == 1:
                 nombre_usuario = input("\nUsuario: ")
             else:
