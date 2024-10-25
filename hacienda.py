@@ -150,11 +150,10 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 try:
                     usuarios = json.load(archivo)  
                 except json.JSONDecodeError:
-                    print("Error al leer la base de datos de usuarios.")
-                    return False
-        else:
-            print("Error con el archivo de usuarios")
-            return False
+                    raise ValueError("Error al leer la base de datos de usuarios: el archivo no tiene un formato JSON válido.")
+                except Exception as e:
+                    raise Exception(f"Ocurrió un error inesperado al cargar el archivo: {e}")
+
         
         nombre_usuario = input("\nUsuario: ")
         while nombre_usuario not in usuarios:
@@ -189,7 +188,78 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         return self.pantalla_morosos()
     
     def pantalla_morosos(self):
-        ...
+        fin = False
+        while not fin:
+            print("--------------------------------------------------------------------------------")
+            print("LISTA DE MOROSOS")
+            print("--------------------------------------------------------------------------------")
+
+            accion = int(input("Selecciona una opción: \n1-Añadir moroso \n2-Borrar moroso \n3-Salir\nIntroduce el número de la acción: "))
+            while accion not in [1,2,3]:
+                accion = int(input("Por favor escoge una opción correcta: "))
+            if accion == 1:
+                fin = self.nuevo_moroso()
+            elif accion == 2:
+                fin = self.borrar_moroso()
+            else: 
+                fin = self.salir()
+        
+
+    def nuevo_moroso(self):
+        ruta_archivo = os.path.join("Base de datos", "morosos.json")
+        if os.path.exists(ruta_archivo):
+            with open(ruta_archivo, 'r') as archivo:
+                try:
+                    morosos = json.load(archivo)  
+                except json.JSONDecodeError:
+                    morosos ={}    # Si el archivo JSON esta vacío creo el diccionario
+
+        numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
+            
+        if numero_ss in morosos:       #En caso de que el nombre ya esta encriptado
+            print("Moroso ya registrado")
+            return
+        
+        deuda = str(input("Introduzca la deuda del moroso "))
+        tiempo_deuda = str(input("Introduzca cuanto tiempo lleva con la deuda:"))
+
+        morosos[numero_ss]= {
+            "deuda": deuda,
+            "endeudado": tiempo_deuda
+        }
+        
+        with open(ruta_archivo, 'w') as archivo:
+            json.dump(morosos, archivo, indent=4)
+
+        print("Moroso añadido correctamente")
+        print("--------------------------------------------------------------------------------")
+        return
+                    
+    
+    def borrar_moroso():
+        ruta_archivo = os.path.join("Base de datos", "morosos.json")
+        if os.path.exists(ruta_archivo):
+            with open(ruta_archivo, 'r') as archivo:
+                try:
+                    morosos = json.load(archivo)  
+                except json.JSONDecodeError:
+                    raise ValueError("Error al leer la base de datos de usuarios: el archivo no tiene un formato JSON válido.")
+                except Exception as e:
+                    raise Exception(f"Ocurrió un error inesperado al cargar el archivo: {e}")
+
+        numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
+        if numero_ss not in morosos:
+            print("Moroso no registrado")
+            return
+        
+        del morosos[numero_ss]
+        with open(ruta_archivo, 'w') as archivo:
+            json.dump(morosos, archivo, indent=4)
+
+        print("Moroso borrado correctamente correctamente")
+        print("--------------------------------------------------------------------------------")
+        return
+
 
 
             
