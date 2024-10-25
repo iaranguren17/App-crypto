@@ -52,13 +52,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         cripto = Cripto()              #Creamos una clase Cripto
         cripto.desencriptar_json()
         ruta_archivo = os.path.join("Base de datos", "usuarios.json")
-        if os.path.exists(ruta_archivo):
-            with open(ruta_archivo, 'r') as archivo:
-                try: 
-                    usuarios = json.load(archivo)   #Carga el JSON
-                except json.JSONDecodeError:
-                    usuarios ={}    # Si el archivo JSON esta vacío creo el diccionario
-
+        usuarios= self.cargar_json(ruta_archivo)
         
         nombre_usuario = str(input("\nIntroduce nombre de usuario: "))
         
@@ -145,14 +139,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         cripto = Cripto()
         cripto.desencriptar_json()
         ruta_archivo = os.path.join("Base de datos", "usuarios.json")
-        if os.path.exists(ruta_archivo):
-            with open(ruta_archivo, 'r') as archivo:
-                try:
-                    usuarios = json.load(archivo)  
-                except json.JSONDecodeError:
-                    raise ValueError("Error al leer la base de datos de usuarios: el archivo no tiene un formato JSON válido.")
-                except Exception as e:
-                    raise Exception(f"Ocurrió un error inesperado al cargar el archivo: {e}")
+        usuarios = self.cargar_json(ruta_archivo)
 
         
         nombre_usuario = input("\nUsuario: ")
@@ -207,12 +194,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
 
     def nuevo_moroso(self):
         ruta_archivo = os.path.join("Base de datos", "morosos.json")
-        if os.path.exists(ruta_archivo):
-            with open(ruta_archivo, 'r') as archivo:
-                try:
-                    morosos = json.load(archivo)  
-                except json.JSONDecodeError:
-                    morosos ={}    # Si el archivo JSON esta vacío creo el diccionario
+        morosos = self.cargar_json(ruta_archivo)
 
         numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
             
@@ -238,14 +220,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
     
     def borrar_moroso(self):
         ruta_archivo = os.path.join("Base de datos", "morosos.json")
-        if os.path.exists(ruta_archivo):
-            with open(ruta_archivo, 'r') as archivo:
-                try:
-                    morosos = json.load(archivo)  
-                except json.JSONDecodeError:
-                    raise ValueError("Error al leer la base de datos de usuarios: el archivo no tiene un formato JSON válido.")
-                except Exception as e:
-                    raise Exception(f"Ocurrió un error inesperado al cargar el archivo: {e}")
+        morosos = self.cargar_json(ruta_archivo)
 
         numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
         if numero_ss not in morosos:
@@ -259,6 +234,20 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         print("Moroso borrado correctamente")
         print("--------------------------------------------------------------------------------")
         return
+    
+    def cargar_json(self, ruta_archivo):
+        if os.path.exists(ruta_archivo):
+            with open(ruta_archivo, 'r') as archivo:
+                try:
+                    return json.load(archivo)
+                except json.JSONDecodeError:
+                    print(f"Advertencia: El archivo {ruta_archivo} está vacío o tiene un formato JSON no válido.")
+                    return {}
+                except Exception as e:
+                    raise Exception(f"Ocurrió un error al cargar el archivo {ruta_archivo}: {e}")
+        else:
+            print(f"Advertencia: El archivo {ruta_archivo} no existe.")
+            return {}
 
 
 
