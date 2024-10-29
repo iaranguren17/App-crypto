@@ -4,8 +4,9 @@ import os
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
 import json 
-import time
+
 class Cripto():
     def __init__(self):
         pass
@@ -33,7 +34,7 @@ class Cripto():
         clave = clave.encode('utf-8')
         return clave
 
-    def encriptar_json(self):
+    def encriptar_json_usuarios(self):
         ruta= "Base de datos/usuarios.json"
         if os.path.exists(ruta):
             with open(ruta, 'rb') as archivo: #'rb' read in bits
@@ -47,7 +48,7 @@ class Cripto():
         return
 
 
-    def desencriptar_json(self):
+    def desencriptar_json_usuarios(self):
         ruta= "Base de datos/usuarios.json"
         if os.path.exists(ruta):
             with open(ruta, 'rb') as archivo: #'rb' read in bits
@@ -65,10 +66,11 @@ class Cripto():
         archivo.close()
         return 
 
-
-
-
 """
+t = Cripto()
+t.encriptar_json_usuarios()
+
+
 s1 = prueba.crear_salt()
 t1 = prueba.crear_token(s1, "hola")
 t2 = prueba.crear_token(s1,"hola")
