@@ -197,6 +197,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
     def nuevo_moroso(self):
         ruta_archivo = os.path.join("Base de datos", "morosos.json")
         morosos = self.cargar_json(ruta_archivo)
+        print(morosos)
 
         numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
             
@@ -215,7 +216,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         self.subir_json(ruta_archivo, morosos)
 
         print("Moroso añadido correctamente")
-        print("--------------------------------------------------------------------------------")
+        print("--------------------------------------------------------------------------------\n")
         return
                     
     
