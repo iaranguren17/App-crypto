@@ -68,7 +68,6 @@ class Cripto():
 
 
 
-
 """
 s1 = prueba.crear_salt()
 t1 = prueba.crear_token(s1, "hola")

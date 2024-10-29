@@ -180,13 +180,15 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             print("LISTA DE MOROSOS")
             print("--------------------------------------------------------------------------------")
 
-            accion = int(input("Selecciona una opción: \n1-Añadir moroso \n2-Borrar moroso \n3-Salir\nIntroduce el número de la acción: "))
-            while accion not in [1,2,3]:
+            accion = int(input("Selecciona una opción: \n1-Añadir moroso \n2-Borrar moroso \n3-Ver lista \n4-Salir\nIntroduce el número de la acción: "))
+            while accion not in [1,2,3,4]:
                 accion = int(input("Por favor escoge una opción correcta: "))
             if accion == 1:
                 fin = self.nuevo_moroso()
             elif accion == 2:
                 fin = self.borrar_moroso()
+            elif accion == 3:
+                fin = self.listado()
             else: 
                 print("\nCargando página anterior...")
                 fin = True
@@ -232,6 +234,26 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         print("Moroso borrado correctamente")
         print("--------------------------------------------------------------------------------")
         return
+    
+    def listado(self):
+        ruta_archivo = os.path.join("Base de datos", "morosos.json")
+        morosos = self.cargar_json(ruta_archivo)
+
+        if not morosos:
+            print("No hay morosos registrados.")
+            return
+
+        print("--------------------------------------------------------------------------------")
+        print("LISTADO DE MOROSOS")
+        print("--------------------------------------------------------------------------------")
+        for numero_ss, info in morosos.items():
+            deuda = info.get("deuda", "N/A")
+            tiempo_deuda = info.get("endeudado", "N/A")
+            print(f"Número SS: {numero_ss}")
+            print(f"  - Deuda: {deuda}")
+            print(f"  - Tiempo con deuda: {tiempo_deuda}")
+            print("--------------------------------------------------------------------------------")
+
     
     def cargar_json(self, ruta_archivo):
         if os.path.exists(ruta_archivo):
