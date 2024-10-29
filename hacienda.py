@@ -2,7 +2,7 @@ import json
 import os
 import getpass
 from criptography import Cripto
-
+from keyboardInterrupt import ki
 
 class Menus():
     def __init__(self):
@@ -48,53 +48,61 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         print("--------------------------------------------------------------------------------")
         print("REGISTRARSE")
         print("--------------------------------------------------------------------------------")
-        
-        cripto = Cripto()              #Creamos una clase Cripto
-        cripto.desencriptar_json()
-        ruta_archivo = os.path.join("Base de datos", "usuarios.json")
-        usuarios= self.cargar_json(ruta_archivo)
-        
-        nombre_usuario = str(input("\nIntroduce nombre de usuario: "))
-        
-        while nombre_usuario in usuarios:       #En caso de que el nombre ya esta encriptado
-            print("Usuario ya registrado")
-            option = int(input("Indica operación\n1:Iniciar sesión\n2:Cambiar nombre de registro \n3:Salir\n"))
-            while option not in [1,2,3] :
-                option= int(input("Por favor, elige una opción correcta: \n"))
-            if option == 1:
-                cripto.encriptar_json()
-                self.login()
-            elif option == 2:
-                nombre_usuario = str(input("Escribe de nuevo el nombre de usuario: "))
-            else:
-                cripto.encriptar_json()
-                return self.salir()
-        
-        contraseña = self.pedir_contraseña() #Creamos una contraseña
-        salt_usuario = cripto.crear_salt()  #Creamos un salt por usuario
-        token_usuario = cripto.crear_token(salt_usuario, contraseña)  #Y el token de la contraseña
+        try:
+            cripto = Cripto()              #Creamos una clase Cripto
+            cripto.desencriptar_json_usuarios()
+            ruta_archivo = os.path.join("Base de datos", "usuarios.json")
+            usuarios= self.cargar_json(ruta_archivo)
+            
+            nombre_usuario = str(input("\nIntroduce nombre de usuario: "))
+            
+            while nombre_usuario in usuarios:       #En caso de que el nombre ya esta encriptado
+                print("Usuario ya registrado")
+                option = int(input("Indica operación\n1:Iniciar sesión\n2:Cambiar nombre de registro \n3:Salir\n"))
+                while option not in [1,2,3] :
+                    option= int(input("Por favor, elige una opción correcta: \n"))
+                if option == 1:
+                    cripto.encriptar_json_usuarios()
+                    self.login()
+                elif option == 2:
+                    nombre_usuario = str(input("Escribe de nuevo el nombre de usuario: "))
+                else:
+                    cripto.encriptar_json_usuarios()
+                    return self.salir()
+            
+            contraseña = self.pedir_contraseña() #Creamos una contraseña
+            salt_usuario = cripto.crear_salt()  #Creamos un salt por usuario
+            token_usuario = cripto.crear_token(salt_usuario, contraseña)  #Y el token de la contraseña
 
-        usuarios[nombre_usuario]= {
-            "salt": salt_usuario.hex(),
-            "token": token_usuario.hex()
-        }
-        
-        self.subir_json(ruta_archivo, usuarios)
-        
-        cripto.encriptar_json()
-        print("Usuario registrado correctamente")
-        print("--------------------------------------------------------------------------------")
-        
-        return False
+            usuarios[nombre_usuario]= {
+                "salt": salt_usuario.hex(),
+                "token": token_usuario.hex()
+            }
+            
+            self.subir_json(ruta_archivo, usuarios)
+            
+            cripto.encriptar_json()
+            print("Usuario registrado correctamente")
+            print("--------------------------------------------------------------------------------")
+            
+            return False
+        except KeyboardInterrupt:
+            a = ki()
+            a.Interrupt()
 
 
     def pedir_contraseña(self):
-        contraseña_segura = False
-        while not contraseña_segura:
-            contraseña = str(getpass.getpass("Introduce contraseña: "))
-            contraseña_segura = self._verificar_contraseña(contraseña)
-        print("Contraseña segura")
-        return contraseña  
+        try: 
+            contraseña_segura = False
+            while not contraseña_segura:
+                contraseña = str(getpass.getpass("Introduce contraseña: "))
+                contraseña_segura = self._verificar_contraseña(contraseña)
+            print("Contraseña segura")
+            return contraseña 
+        except KeyboardInterrupt:
+            a = ki()
+            a.Interrupt()
+            
     
     def _verificar_contraseña(self, contraseña):
         if len(contraseña) < 12:
@@ -135,44 +143,47 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         print("--------------------------------------------------------------------------------")
         print("INICIO DE SESIÓN")
         print("--------------------------------------------------------------------------------")
-        cripto = Cripto()
-        cripto.desencriptar_json()
-        ruta_archivo = os.path.join("Base de datos", "usuarios.json")
-        usuarios = self.cargar_json(ruta_archivo)
+        try:
+            cripto = Cripto()
+            cripto.desencriptar_json_usuarios()
+            ruta_archivo = os.path.join("Base de datos", "usuarios.json")
+            usuarios = self.cargar_json(ruta_archivo)
 
-        
-        nombre_usuario = input("\nUsuario: ")
-        while nombre_usuario not in usuarios:
-            opcion=int(input("Usuario incorrecto.\n1:Volver a intentar\n2:Salir\n"))
-            while opcion not in [1,2]:
-                opcion = int(input("Por favor, elija una opción válida: \n" ))
-            if opcion == 1:
-                nombre_usuario = input("\nUsuario: ")
-            else:
-                return False
-        intentos = 4
-        contraseña_usuario = getpass.getpass("Contraseña: ")
-        
-        token_usuario = usuarios[nombre_usuario]["token"]
-        salt_usuario = usuarios[nombre_usuario]["salt"]
-        salt_usuario = bytes.fromhex(salt_usuario)
-
-        token = cripto.crear_token(salt_usuario, contraseña_usuario )
-        token = token.hex()
-        while token_usuario != token:
-            intentos -= 1
-            if intentos == 0:
-                print("Intentos máximos permitidos")
-                cripto.encriptar_json()
-                return True
-            print("Contraseña incorrecta. Intentos restantes: "+ str(intentos))
+            
+            nombre_usuario = input("\nUsuario: ")
+            while nombre_usuario not in usuarios:
+                opcion=int(input("Usuario incorrecto.\n1:Volver a intentar\n2:Salir\n"))
+                while opcion not in [1,2]:
+                    opcion = int(input("Por favor, elija una opción válida: \n" ))
+                if opcion == 1:
+                    nombre_usuario = input("\nUsuario: ")
+                else:
+                    return False
+            intentos = 4
             contraseña_usuario = getpass.getpass("Contraseña: ")
+            
+            token_usuario = usuarios[nombre_usuario]["token"]
+            salt_usuario = usuarios[nombre_usuario]["salt"]
+            salt_usuario = bytes.fromhex(salt_usuario)
+
             token = cripto.crear_token(salt_usuario, contraseña_usuario )
-            token =token.hex()
-        cripto.encriptar_json()
-        print("Inicio de sesión exitoso")
-        return self.pantalla_morosos()
-    
+            token = token.hex()
+            while token_usuario != token:
+                intentos -= 1
+                if intentos == 0:
+                    print("Intentos máximos permitidos")
+                    cripto.encriptar_json_usuarios()
+                    return True
+                print("Contraseña incorrecta. Intentos restantes: "+ str(intentos))
+                contraseña_usuario = getpass.getpass("Contraseña: ")
+                token = cripto.crear_token(salt_usuario, contraseña_usuario )
+                token =token.hex()
+            cripto.encriptar_json_usuarios()
+            print("Inicio de sesión exitoso")
+            return self.pantalla_morosos()
+        except KeyboardInterrupt:
+            a = ki()
+            a.Interrupt()
     def pantalla_morosos(self):
         fin = False
         while not fin:
