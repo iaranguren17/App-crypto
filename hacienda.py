@@ -88,7 +88,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             return False
         except KeyboardInterrupt:
             a = ki()
-            a.Interrupt()
+            a.Interrupt(1)
 
 
     def pedir_contraseña(self):
@@ -101,7 +101,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             return contraseña 
         except KeyboardInterrupt:
             a = ki()
-            a.Interrupt()
+            a.Interrupt(1)
             
     
     def _verificar_contraseña(self, contraseña):
@@ -183,7 +183,8 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             return self.pantalla_morosos()
         except KeyboardInterrupt:
             a = ki()
-            a.Interrupt()
+            a.Interrupt(1)
+
     def pantalla_morosos(self):
         fin = False
         while not fin:
@@ -206,65 +207,88 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         
 
     def nuevo_moroso(self):
-        ruta_archivo = os.path.join("Base de datos", "morosos.json")
-        morosos = self.cargar_json(ruta_archivo)
-        print(morosos)
+        try:
+            cripto = Cripto()
+            cripto.desencriptar_json_morosos()
+            ruta_archivo = os.path.join("Base de datos", "morosos.json")
+            morosos = self.cargar_json(ruta_archivo)
 
-        numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
+            numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
+                
+            if numero_ss in morosos:       #En caso de que el nombre ya esta encriptado
+                print("Moroso ya registrado")
+                return
             
-        if numero_ss in morosos:       #En caso de que el nombre ya esta encriptado
-            print("Moroso ya registrado")
+            deuda = str(input("Introduzca la deuda del moroso "))
+            tiempo_deuda = str(input("Introduzca cuanto tiempo lleva con la deuda:"))
+
+            morosos[numero_ss]= {
+                "deuda": deuda,
+                "endeudado": tiempo_deuda
+            }
+            
+            self.subir_json(ruta_archivo, morosos)
+
+            print("Moroso añadido correctamente")
+            print("--------------------------------------------------------------------------------\n")
+            cripto.encriptar_json_morosos()
             return
         
-        deuda = str(input("Introduzca la deuda del moroso "))
-        tiempo_deuda = str(input("Introduzca cuanto tiempo lleva con la deuda:"))
+        except KeyboardInterrupt:
+            a = ki()
+            a.Interrupt(2)
 
-        morosos[numero_ss]= {
-            "deuda": deuda,
-            "endeudado": tiempo_deuda
-        }
-        
-        self.subir_json(ruta_archivo, morosos)
-
-        print("Moroso añadido correctamente")
-        print("--------------------------------------------------------------------------------\n")
-        return
                     
     
     def borrar_moroso(self):
-        ruta_archivo = os.path.join("Base de datos", "morosos.json")
-        morosos = self.cargar_json(ruta_archivo)
+        try:
+            cripto = Cripto()
+            cripto.desencriptar_json_morosos()
+            ruta_archivo = os.path.join("Base de datos", "morosos.json")
+            morosos = self.cargar_json(ruta_archivo)
 
-        numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
-        if numero_ss not in morosos:
-            print("Moroso no registrado")
+            numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
+            if numero_ss not in morosos:
+                print("Moroso no registrado")
+                return
+            
+            del morosos[numero_ss]
+            self.subir_json(ruta_archivo, morosos)
+
+            print("Moroso borrado correctamente")
+            print("--------------------------------------------------------------------------------")
+            cripto.encriptar_json_morosos()
             return
-        
-        del morosos[numero_ss]
-        self.subir_json(ruta_archivo, morosos)
-
-        print("Moroso borrado correctamente")
-        print("--------------------------------------------------------------------------------")
-        return
+        except KeyboardInterrupt:
+            a = ki()
+            a.Interrupt(2)
     
     def listado(self):
-        ruta_archivo = os.path.join("Base de datos", "morosos.json")
-        morosos = self.cargar_json(ruta_archivo)
+        try:
+            cripto = Cripto()
+            cripto.desencriptar_json_morosos()
+            ruta_archivo = os.path.join("Base de datos", "morosos.json")
+            morosos = self.cargar_json(ruta_archivo)
 
-        if not morosos:
-            print("No hay morosos registrados.")
-            return
+            if not morosos:
+                print("No hay morosos registrados.")
+                return
 
-        print("--------------------------------------------------------------------------------")
-        print("LISTADO DE MOROSOS")
-        print("--------------------------------------------------------------------------------")
-        for numero_ss, info in morosos.items():
-            deuda = info.get("deuda", "N/A")
-            tiempo_deuda = info.get("endeudado", "N/A")
-            print(f"Número SS: {numero_ss}")
-            print(f"  - Deuda: {deuda}")
-            print(f"  - Tiempo con deuda: {tiempo_deuda}")
             print("--------------------------------------------------------------------------------")
+            print("LISTADO DE MOROSOS")
+            print("--------------------------------------------------------------------------------")
+            for numero_ss, info in morosos.items():
+                deuda = info.get("deuda", "N/A")
+                tiempo_deuda = info.get("endeudado", "N/A")
+                print(f"Número SS: {numero_ss}")
+                print(f"  - Deuda: {deuda}")
+                print(f"  - Tiempo con deuda: {tiempo_deuda}")
+                print("--------------------------------------------------------------------------------")
+            cripto.encriptar_json_morosos()
+            return
+        except KeyboardInterrupt:
+            a = ki()
+            a.Interrupt(2)                
 
     
     def cargar_json(self, ruta_archivo):
@@ -287,6 +311,3 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
 
 
 
-            
-a = Menus()
-a.inicio()
