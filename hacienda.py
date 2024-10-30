@@ -82,7 +82,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             
             self.subir_json(ruta_archivo, usuarios)
             
-            cripto.encriptar_json()
+            cripto.encriptar_json_usuarios()
             print("Usuario registrado correctamente")
             print("--------------------------------------------------------------------------------")
             

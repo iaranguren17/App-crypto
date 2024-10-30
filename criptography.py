@@ -1,7 +1,7 @@
 
 import base64
 import os
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
@@ -88,22 +88,27 @@ class Cripto():
 
 
     def desencriptar_json_usuarios(self):
-        ruta= "Base de datos/usuarios.json"
-        if os.path.exists(ruta):
-            with open(ruta, 'rb') as archivo: #'rb' read in bits
-                datos_encriptados = archivo.read()
-        
-        if len(datos_encriptados) == 0:
-            return 
-       
+        ruta = "Base de datos/usuarios.json"
         clave = self.leer_clave_servidor()
         fernet = Fernet(clave)
-        datos_desencriptados = fernet.decrypt(datos_encriptados)
-        with open(ruta, 'wb') as archivo:  
-            archivo.write(datos_desencriptados)
         
-        archivo.close()
-        return
+        try:
+            with open(ruta, 'rb') as archivo:
+                datos_encriptados = archivo.read()
+
+            # Intentar desencriptar los datos
+            datos_desencriptados = fernet.decrypt(datos_encriptados)
+            
+            # Guardar los datos desencriptados de nuevo en el archivo
+            with open(ruta, 'wb') as archivo:
+                archivo.write(datos_desencriptados)
+            archivo.close()
+        
+        except InvalidToken:
+            print("Error: La clave no es válida o los datos han sido modificados.")
+        
+        except Exception as e:
+            print(f"Ocurrió un error al desencriptar usuarios.json: {e}")
     
     def desencriptar_json_morosos(self):
         ruta = "Base de datos/morosos.json"
@@ -124,6 +129,7 @@ class Cripto():
                     datos_desencriptados = chacha.decrypt(nonce, datos, None)
                     with open(ruta, 'wb') as archivo:
                         archivo.write(datos_desencriptados)
+                    archivo.close()
                 except Exception as e:
                     print("Error al desencriptar morosos.json:", e)
                     return None
