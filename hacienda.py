@@ -290,20 +290,29 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             a = ki()
             a.Interrupt(2)                
 
-    
+
     def cargar_json(self, ruta_archivo):
-        if os.path.exists(ruta_archivo):
-            with open(ruta_archivo, 'r') as archivo:
-                try:
-                    return json.load(archivo)
-                except json.JSONDecodeError:
-                    print(f"Advertencia: El archivo {ruta_archivo} está vacío o tiene un formato JSON no válido.")
-                    return {}
-                except Exception as e:
-                    raise Exception(f"Ocurrió un error al cargar el archivo {ruta_archivo}: {e}")
-        else:
-            print(f"Advertencia: El archivo {ruta_archivo} no existe.")
-            return {}
+        directorio = os.path.dirname(ruta_archivo)
+        if not os.path.exists(directorio):
+            os.makedirs(directorio)
+            print(f"El directorio {directorio} no existía y ha sido creado.")
+
+        if not os.path.exists(ruta_archivo):
+            with open(ruta_archivo, 'w') as archivo:
+                json.dump({}, archivo)  # Escribir un JSON vacío en el archivo
+            print(f"El archivo {ruta_archivo} no existía y ha sido creado.")
+
+        with open(ruta_archivo, 'r') as archivo:
+            try:
+                return json.load(archivo)
+            except json.JSONDecodeError:
+                print(f"Advertencia: El archivo {ruta_archivo} está modificado o tiene un formato JSON no válido.")
+                exit(1)
+                return {}
+            except Exception as e:
+                raise Exception(f"Ocurrió un error al cargar el archivo {ruta_archivo}: {e}")
+
+
         
     def subir_json(self, ruta_archivo, list):
         with open(ruta_archivo, 'w') as archivo:

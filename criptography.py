@@ -41,13 +41,19 @@ class Cripto():
     
     def leer_clave_chacha(self):
         ruta = "Base de datos/clave_chacha.txt"
+        directorio = os.path.dirname(ruta)
+        if not os.path.exists(directorio):
+            os.makedirs(directorio)
+            print(f"El directorio {directorio} no existía y ha sido creado.")
+        
         if not os.path.exists(ruta):
             clave = self.generar_clave_chacha20()
             with open(ruta, 'wb') as archivo_clave:  # Guardamos la clave en binario
                 archivo_clave.write(clave)
+            print(f"El archivo {ruta} no existía y ha sido creado con una nueva clave.")
             return clave
         else:
-            with open(ruta, 'rb') as archivo_clave:  # Leemos la clave en binario
+            with open(ruta, 'rb') as archivo_clave:
                 return archivo_clave.read()
 
     def encriptar_json_usuarios(self):
