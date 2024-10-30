@@ -27,14 +27,27 @@ class Cripto():
         key = base64.urlsafe_b64encode(kdf.derive(mensaje_bytes))
         return key
     
-
+    def generar_clave_fernet(self):
+        return Fernet.generate_key()
+    
+    
     def leer_clave_servidor(self):
         ruta = "Base de datos/clave_servidor.txt"
-        with open (ruta, 'r') as archivo_clave:
-            clave = archivo_clave.read()
+        directorio = os.path.dirname(ruta)
+        if not os.path.exists(directorio):
+            os.makedirs(directorio)
+            print(f"El directorio {directorio} no existía y ha sido creado.")
         
-        clave = clave.encode('utf-8')
-        return clave
+        if not os.path.exists(ruta):
+            clave = self.generar_clave_fernet()
+            with open(ruta, 'wb') as archivo_clave:  # Guardamos la clave en binario
+                archivo_clave.write(clave)
+            print(f"El archivo {ruta} no existía y ha sido creado con una nueva clave.")
+            return clave
+        else:
+            with open(ruta, 'rb') as archivo_clave:
+                return archivo_clave.read()
+        
     
     def generar_clave_chacha20(self):
         return os.urandom(32)

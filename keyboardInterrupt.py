@@ -2,7 +2,7 @@ from criptography import Cripto
 import os
 import json
 class ki():
-    def Interrupt(self, b):
+    def Interrupt(self, b = None):
         print("\nPrograma interrumpido")
         
         if b == 1:   
@@ -21,5 +21,8 @@ class ki():
             if isinstance(morosos, dict):
                 cripto = Cripto()   
                 cripto.encriptar_json_morosos()
+        else:
+            print("Programa Cerrado")
+            exit(1)
         print("Programa Cerrado")
         exit(1)

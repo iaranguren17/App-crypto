@@ -187,24 +187,28 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             a.Interrupt(1)
 
     def pantalla_morosos(self):
-        fin = False
-        while not fin:
-            print("--------------------------------------------------------------------------------")
-            print("LISTA DE MOROSOS")
-            print("--------------------------------------------------------------------------------")
+        try:    
+            fin = False
+            while not fin:
+                print("--------------------------------------------------------------------------------")
+                print("LISTA DE MOROSOS")
+                print("--------------------------------------------------------------------------------")
 
-            accion = int(input("Selecciona una opción: \n1-Añadir moroso \n2-Borrar moroso \n3-Ver lista \n4-Salir\nIntroduce el número de la acción: "))
-            while accion not in [1,2,3,4]:
-                accion = int(input("Por favor escoge una opción correcta: "))
-            if accion == 1:
-                fin = self.nuevo_moroso()
-            elif accion == 2:
-                fin = self.borrar_moroso()
-            elif accion == 3:
-                fin = self.listado()
-            else: 
-                print("\nCargando página anterior...")
-                fin = True
+                accion = int(input("Selecciona una opción: \n1-Añadir moroso \n2-Borrar moroso \n3-Ver lista \n4-Salir\nIntroduce el número de la acción: "))
+                while accion not in [1,2,3,4]:
+                    accion = int(input("Por favor escoge una opción correcta: "))
+                if accion == 1:
+                    fin = self.nuevo_moroso()
+                elif accion == 2:
+                    fin = self.borrar_moroso()
+                elif accion == 3:
+                    fin = self.listado()
+                else: 
+                    print("\nCargando página anterior...")
+                    fin = True
+        except KeyboardInterrupt:
+            a = ki()
+            a.Interrupt()
         
 
     def nuevo_moroso(self):
