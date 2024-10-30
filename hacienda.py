@@ -1,6 +1,7 @@
 import json
 import os
 import getpass
+import re
 from criptography import Cripto
 from keyboardInterrupt import ki
 
@@ -214,13 +215,15 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             morosos = self.cargar_json(ruta_archivo)
 
             numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
+            while not re.fullmatch(r"^\d{8}$", numero_ss):
+                numero_ss = str(input("\nFormato no válido, tiene que tener 8 dígitos: "))
                 
             if numero_ss in morosos:       #En caso de que el nombre ya esta encriptado
                 print("Moroso ya registrado")
                 return
             
-            deuda = str(input("Introduzca la deuda del moroso "))
-            tiempo_deuda = str(input("Introduzca cuanto tiempo lleva con la deuda:"))
+            deuda = str(input("Introduzca la deuda del moroso: "))
+            tiempo_deuda = str(input("Introduzca cuanto tiempo lleva con la deuda: "))
 
             morosos[numero_ss]= {
                 "deuda": deuda,
@@ -248,6 +251,9 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             morosos = self.cargar_json(ruta_archivo)
 
             numero_ss = str(input("\nIntroduce el numero de la SS del moroso: "))
+            while not re.fullmatch(r"^\d{8}$", numero_ss):
+                numero_ss = str(input("\nFormato no válido, tiene que tener 8 dígitos: "))
+
             if numero_ss not in morosos:
                 print("Moroso no registrado")
                 return
@@ -281,7 +287,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 deuda = info.get("deuda", "N/A")
                 tiempo_deuda = info.get("endeudado", "N/A")
                 print(f"Número SS: {numero_ss}")
-                print(f"  - Deuda: {deuda}")
+                print(f"  - Deuda: {deuda} €")
                 print(f"  - Tiempo con deuda: {tiempo_deuda}")
                 print("--------------------------------------------------------------------------------")
             cripto.encriptar_json_morosos()
