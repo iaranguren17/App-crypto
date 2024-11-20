@@ -5,7 +5,7 @@ from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
-
+from cryptography.hazmat.primitives.asymmetric import rsa
 import json 
 
 class Cripto():
@@ -147,3 +147,13 @@ class Cripto():
                     print("Error al desencriptar morosos.json:", e)
                     return None
         return
+
+    def generate_private_and_public_keys(self):
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048
+        )
+
+        public_key = private_key.public_key()
+
+        return private_key, public_key
