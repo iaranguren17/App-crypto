@@ -7,8 +7,10 @@ from cryptography import x509
 from datetime import datetime, timedelta
 import random
 from criptography import Cripto
+from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.primitives.asymmetric import padding
 
-class certificates():
+class Certificates():
     def __init__(self):
         pass
     
@@ -18,8 +20,8 @@ class certificates():
 
         root_name = x509.Name([
             x509.NameAttribute(NameOID.COUNTRY_NAME, "ES"),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Ministerio de Hacienda"),
-            x509.NameAttribute(NameOID.COMMON_NAME, "CA Raíz Ministerio de Hacienda"),
+            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Ministerio_de_Hacienda"),
+            x509.NameAttribute(NameOID.COMMON_NAME, "CA Raíz Ministerio_de_Hacienda"),
         ])
 
         #Certificado autofirmado
@@ -42,16 +44,93 @@ class certificates():
                           format=serialization.PrivateFormat.TraditionalOpenSSL,
                           encryption_algorithm=serialization.NoEncryption()  
                           )
-        public_key_pem = root_key.public_key().public_bytes(
-                         encoding=serialization.Encoding.PEM,
-                         format=serialization.PublicFormat.SubjectPublicKeyInfo
-                        )
-        ruta = "Organizaciones/Ministerio de Hacienda.pem"
+        ruta = "Organizaciones/Ministerio_de_Hacienda.pem"
 
         with open(ruta, "wb") as archivo:
             archivo.write(cert_pem)
             archivo.write(private_key_pem)
-            archivo.write(public_key_pem)
+            
 
-a = certificates()
-a.create_root_certificate()
+    def create_intermidiates_certificates(self):
+        cripto = Cripto()       
+        
+        ruta= "Organizaciones/Ministerio_de_Hacienda.pem"
+        with open(ruta, "rb") as pem_file:
+            root_key = serialization.load_pem_private_key(
+                          pem_file.read(),
+                          password=None  
+                          )
+        with open(ruta, "rb") as pem_file:
+            root_certificate = load_pem_x509_certificate(pem_file.read())
+        
+        intermediate_org_names = ["Colegio Inspectores Madrid", "Colegio Inspectores Barcelona", "Agencia Tributaria"]
+        for i in intermediate_org_names:
+            intermediate_key = cripto.generate_private_key() 
+            certificate_name = x509.Name([
+                        x509.NameAttribute(NameOID.COUNTRY_NAME, "ES"),
+                        x509.NameAttribute(NameOID.ORGANIZATION_NAME, i),
+                        x509.NameAttribute(NameOID.COMMON_NAME, "CA Intermediate "+ i),
+                    ])
+            intermediate_cert = x509.CertificateBuilder()\
+            .subject_name(certificate_name)\
+            .issuer_name(root_certificate.subject)\
+            .public_key(intermediate_key.public_key())\
+            .serial_number(random.randint(1, 1000000))\
+            .not_valid_before(datetime.utcnow())\
+            .not_valid_after(datetime.utcnow() + timedelta(days=1825))\
+            .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)\
+            .sign(private_key=root_key, algorithm=SHA256())
+
+            interm_cert_pem = intermediate_cert.public_bytes(encoding=serialization.Encoding.PEM)
+            private_key_pem = intermediate_key.private_bytes(
+                          encoding=serialization.Encoding.PEM,
+                          format=serialization.PrivateFormat.TraditionalOpenSSL,
+                          encryption_algorithm=serialization.NoEncryption()  
+                          )
+            ruta = f"Organizaciones/{i.replace(' ', '_')}.pem"
+            with open(ruta, "wb") as archivo:
+                archivo.write(interm_cert_pem)
+                archivo.write(private_key_pem)
+
+
+    def user_certificate(self, name, father):
+
+        cripto = Cripto()       
+        user_key = cripto.generate_private_key() 
+        
+        if father == "Barcelona":
+            ruta= "Organizaciones/Colegio_Inspectores_Barcelona.pem"
+        else:    
+            ruta= "Organizaciones/Colegio_Inspectores_Madrid.pem"
+        with open(ruta, "rb") as pem_file:
+                inter_key = serialization.load_pem_private_key(
+                            pem_file.read(),
+                            password=None  
+                            )
+        with open(ruta, "rb") as pem_file:
+                inter_certificate = load_pem_x509_certificate(pem_file.read())
+            
+        certificate_name = x509.Name([
+                        x509.NameAttribute(NameOID.COUNTRY_NAME, "ES"),
+                        x509.NameAttribute(NameOID.ORGANIZATION_NAME, name),
+                        x509.NameAttribute(NameOID.COMMON_NAME, "CA User "+ name),
+                    ])
+        user_cert = x509.CertificateBuilder()\
+            .subject_name(certificate_name)\
+            .issuer_name(inter_certificate.subject)\
+            .public_key(user_key.public_key())\
+            .serial_number(random.randint(1, 1000000))\
+            .not_valid_before(datetime.utcnow())\
+            .not_valid_after(datetime.utcnow() + timedelta(days=1825))\
+            .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)\
+            .sign(private_key= inter_key, algorithm=SHA256())
+        
+        user_cert_pem = user_cert.public_bytes(encoding=serialization.Encoding.PEM).decode("utf-8")
+        user_key_pem = user_key.private_bytes(
+                          encoding=serialization.Encoding.PEM,
+                          format=serialization.PrivateFormat.TraditionalOpenSSL,
+                          encryption_algorithm=serialization.NoEncryption()  
+                          ).decode("utf-8")
+        return user_cert_pem, user_key_pem
+
+
