@@ -148,12 +148,13 @@ class Cripto():
                     return None
         return
 
-    def generate_private_and_public_keys(self):
+    def generate_private_key(self):
         private_key = rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048
         )
-
+        return private_key
+    
+    def generate_public_key(self, private_key):
         public_key = private_key.public_key()
-
-        return private_key, public_key
+        return public_key
