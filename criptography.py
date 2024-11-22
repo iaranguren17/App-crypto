@@ -108,7 +108,8 @@ class Cripto():
         try:
             with open(ruta, 'rb') as archivo:
                 datos_encriptados = archivo.read()
-
+            if datos_encriptados == {}:
+                return
             # Intentar desencriptar los datos
             datos_desencriptados = fernet.decrypt(datos_encriptados)
             
@@ -116,7 +117,7 @@ class Cripto():
             with open(ruta, 'wb') as archivo:
                 archivo.write(datos_desencriptados)
             archivo.close()
-        
+            return
         except InvalidToken:
             print("Error: La clave no es válida o los datos han sido modificados.")
         

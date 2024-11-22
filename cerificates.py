@@ -93,7 +93,7 @@ class Certificates():
                 archivo.write(private_key_pem)
 
 
-    def user_certificate(self, name, father):
+    def create_user_certificate(self, name, father):
 
         cripto = Cripto()       
         user_key = cripto.generate_private_key() 
@@ -125,12 +125,40 @@ class Certificates():
             .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)\
             .sign(private_key= inter_key, algorithm=SHA256())
         
+        user_public_key = user_cert.public_key()
         user_cert_pem = user_cert.public_bytes(encoding=serialization.Encoding.PEM).decode("utf-8")
         user_key_pem = user_key.private_bytes(
                           encoding=serialization.Encoding.PEM,
                           format=serialization.PrivateFormat.TraditionalOpenSSL,
                           encryption_algorithm=serialization.NoEncryption()  
                           ).decode("utf-8")
-        return user_cert_pem, user_key_pem
+        public_key_pem = user_public_key.public_bytes(
+                        encoding=serialization.Encoding.PEM,  # Formato PEM
+                        format=serialization.PublicFormat.SubjectPublicKeyInfo  # Estandarizado para certificados
+                        )
+        return user_cert_pem, user_key_pem, public_key_pem
 
+    def verify_certificate(self, child_cert, parent_cert):
+        try:
+            # Extraer la clave pública del certificado padre
+            parent_public_key = parent_cert.public_key()
+            
+            # Verificar la firma del certificado hijo
+            parent_public_key.verify(
+                signature=child_cert.signature,
+                data=child_cert.tbs_certificate_bytes,  # Contenido a firmar
+                padding=padding.PKCS1v15(),  # Padding RSA estándar
+                algorithm=SHA256()  # Algoritmo de hash
+            )
+            print("La firma del certificado hijo es válida.")
+            return True
+        except Exception as e:
+            print(f"Error: La firma no es válida. Detalles: {e}")
+            return False
+"""
 
+a= Certificates()
+b,c,d = a.create_user_certificate("Juan","Madrid")
+print(b)
+print(c)
+print(d)"""
