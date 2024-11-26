@@ -8,7 +8,6 @@ from cerificates import Certificates
 class Menus():
     def __init__(self):
         pass
-    
     def salir(self):
         print("\nMuchas gracias, hasta la próxima\nFIN DE PROGRAMA")
         return True
@@ -224,6 +223,8 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 elif accion == 3:
                     fin = self.listado()
                 else: 
+                    print("Mandando cambios al Servidor...")
+                    
                     print("\nCargando página anterior...")
                     fin = True
         except KeyboardInterrupt:

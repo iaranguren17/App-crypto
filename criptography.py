@@ -7,6 +7,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from cryptography.hazmat.primitives.asymmetric import rsa
 import json 
+from cryptography.hazmat.primitives import hashes
 
 class Cripto():
     def __init__(self):
@@ -158,6 +159,12 @@ class Cripto():
         )
         return private_key
     
-    def generate_public_key(self, private_key):
-        public_key = private_key.public_key()
-        return public_key
+    def generate_hash(self, message):
+        hash = hashes.Hash(hashes.SHA256())
+        message_data = message.encode('utf-8')
+        hash.update(message_data)
+        result = hash.finalize()
+        return result
+    
+
+
