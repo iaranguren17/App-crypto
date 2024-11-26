@@ -104,7 +104,9 @@ class Cripto():
         ruta = "Base de datos/usuarios.json"
         clave = self.leer_clave_servidor()
         fernet = Fernet(clave)
-        
+        directorio = os.path.dirname(ruta)
+        if not os.path.exists(directorio):
+            return
         try:
             with open(ruta, 'rb') as archivo:
                 datos_encriptados = archivo.read()

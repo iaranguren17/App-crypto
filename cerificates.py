@@ -135,7 +135,7 @@ class Certificates():
         public_key_pem = user_public_key.public_bytes(
                         encoding=serialization.Encoding.PEM,  # Formato PEM
                         format=serialization.PublicFormat.SubjectPublicKeyInfo  # Estandarizado para certificados
-                        )
+                        ).decode("utf-8")
         return user_cert_pem, user_key_pem, public_key_pem
 
     def verify_certificate(self, child_cert, parent_cert):
@@ -155,10 +155,44 @@ class Certificates():
         except Exception as e:
             print(f"Error: La firma no es válida. Detalles: {e}")
             return False
-"""
 
-a= Certificates()
-b,c,d = a.create_user_certificate("Juan","Madrid")
-print(b)
-print(c)
-print(d)"""
+
+    def create_serv_hacienda_certificate(self):
+        cripto = Cripto()       
+        user_key = cripto.generate_private_key()     
+        ruta= "Organizaciones/Agencia_Tributaria.pem"
+        with open(ruta, "rb") as pem_file:
+                inter_key = serialization.load_pem_private_key(
+                            pem_file.read(),
+                            password=None  
+                            )
+        with open(ruta, "rb") as pem_file:
+                inter_certificate = load_pem_x509_certificate(pem_file.read())        
+
+        certificate_name = x509.Name([
+                        x509.NameAttribute(NameOID.COUNTRY_NAME, "ES"),
+                        x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Servidor Hacienda"),
+                        x509.NameAttribute(NameOID.COMMON_NAME, "CA User Servidor Hacienda"),
+                    ])
+        user_cert = x509.CertificateBuilder()\
+            .subject_name(certificate_name)\
+            .issuer_name(inter_certificate.subject)\
+            .public_key(user_key.public_key())\
+            .serial_number(random.randint(1, 1000000))\
+            .not_valid_before(datetime.utcnow())\
+            .not_valid_after(datetime.utcnow() + timedelta(days=1825))\
+            .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)\
+            .sign(private_key= inter_key, algorithm=SHA256())
+
+        cert_pem = user_cert.public_bytes(encoding=serialization.Encoding.PEM)
+        private_key_pem = user_key.private_bytes(
+                          encoding=serialization.Encoding.PEM,
+                          format=serialization.PrivateFormat.TraditionalOpenSSL,
+                          encryption_algorithm=serialization.NoEncryption()  
+                          )
+        ruta = "Organizaciones/Servidor_Hacienda.pem"
+
+        with open(ruta, "wb") as archivo:
+            archivo.write(cert_pem)
+            archivo.write(private_key_pem)
+

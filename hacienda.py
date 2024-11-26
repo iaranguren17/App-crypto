@@ -74,12 +74,12 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             contraseña = self.pedir_contraseña() #Creamos una contraseña
             salt_usuario = cripto.crear_salt()  #Creamos un salt por usuario
             token_usuario = cripto.crear_token(salt_usuario, contraseña)  #Y el token de la contraseña
-            print("¿Perteneces a qué colegio de inspectores) \n1:Barcelona \n 2:Madrid")
+            print("¿Perteneces a qué colegio de inspectores) \n1:Barcelona \n2:Madrid")
             
             colegio = int(input("Elige opción: "))
             while (colegio != 1 and colegio != 2):
                 print("Opción no válida. Por favor escoja na opción correcta")
-                print("¿Perteneces a qué colegio de inspectores) \n1:Barcelona \n 2:Madrid")
+                print("¿Perteneces a qué colegio de inspectores) \n1:Barcelona \n2:Madrid")
                 colegio = int(input("Elige opción: "))
             
             certificado = Certificates()
@@ -102,7 +102,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             
             self.subir_json(ruta_archivo, usuarios)
             
-            #cripto.encriptar_json_usuarios()
+            cripto.encriptar_json_usuarios()
             print("Usuario registrado correctamente")
             print("--------------------------------------------------------------------------------")
             
