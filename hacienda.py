@@ -7,7 +7,8 @@ from keyboardInterrupt import ki
 from cerificates import Certificates
 class Menus():
     def __init__(self):
-        pass
+        self.cripto = Cripto()
+        self.certificates = Certificates()
     def salir(self):
         print("\nMuchas gracias, hasta la próxima\nFIN DE PROGRAMA")
         return True
@@ -49,8 +50,8 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         print("REGISTRARSE")
         print("--------------------------------------------------------------------------------")
         try:
-            cripto = Cripto()              #Creamos una clase Cripto
-            cripto.desencriptar_json_usuarios()
+                         #Creamos una clase Cripto
+            self.cripto.desencriptar_json_usuarios()
             ruta_archivo = os.path.join("Base de datos", "usuarios.json")
             usuarios= self.cargar_json(ruta_archivo)
             
@@ -62,17 +63,17 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 while option not in [1,2,3] :
                     option= int(input("Por favor, elige una opción correcta: \n"))
                 if option == 1:
-                    cripto.encriptar_json_usuarios()
+                    self.cripto.encriptar_json_usuarios()
                     self.login()
                 elif option == 2:
                     nombre_usuario = str(input("Escribe de nuevo el nombre de usuario: "))
                 else:
-                    cripto.encriptar_json_usuarios()
+                    self.cripto.encriptar_json_usuarios()
                     return self.salir()
             
             contraseña = self.pedir_contraseña() #Creamos una contraseña
-            salt_usuario = cripto.crear_salt()  #Creamos un salt por usuario
-            token_usuario = cripto.crear_token(salt_usuario, contraseña)  #Y el token de la contraseña
+            salt_usuario = self.cripto.crear_salt()  #Creamos un salt por usuario
+            token_usuario = self.cripto.crear_token(salt_usuario, contraseña)  #Y el token de la contraseña
             print("¿Perteneces a qué colegio de inspectores) \n1:Barcelona \n2:Madrid")
             
             colegio = int(input("Elige opción: "))
@@ -81,14 +82,13 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 print("¿Perteneces a qué colegio de inspectores) \n1:Barcelona \n2:Madrid")
                 colegio = int(input("Elige opción: "))
             
-            certificado = Certificates()
             if colegio == 1:
                 ciudad = "Barcelona"
                 
             else:
                 ciudad = "Madrid"
             
-            user_cert, user_key, user_public_key = certificado.create_user_certificate(nombre_usuario, ciudad)
+            user_cert, user_key, user_public_key = self.certificates.create_user_certificate(nombre_usuario, ciudad)
             
             usuarios[nombre_usuario]= {
                 "salt": salt_usuario.hex(),
@@ -101,7 +101,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             
             self.subir_json(ruta_archivo, usuarios)
             
-            cripto.encriptar_json_usuarios()
+            self.cripto.encriptar_json_usuarios()
             print("Usuario registrado correctamente")
             print("--------------------------------------------------------------------------------")
             
@@ -164,8 +164,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         print("INICIO DE SESIÓN")
         print("--------------------------------------------------------------------------------")
         try:
-            cripto = Cripto()
-            cripto.desencriptar_json_usuarios()
+            self.cripto.desencriptar_json_usuarios()
             ruta_archivo = os.path.join("Base de datos", "usuarios.json")
             usuarios = self.cargar_json(ruta_archivo)
 
@@ -186,19 +185,19 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             salt_usuario = usuarios[nombre_usuario]["salt"]
             salt_usuario = bytes.fromhex(salt_usuario)
 
-            token = cripto.crear_token(salt_usuario, contraseña_usuario )
+            token = self.cripto.crear_token(salt_usuario, contraseña_usuario )
             token = token.hex()
             while token_usuario != token:
                 intentos -= 1
                 if intentos == 0:
                     print("Intentos máximos permitidos")
-                    cripto.encriptar_json_usuarios()
+                    self.cripto.encriptar_json_usuarios()
                     return True
                 print("Contraseña incorrecta. Intentos restantes: "+ str(intentos))
                 contraseña_usuario = getpass.getpass("Contraseña: ")
-                token = cripto.crear_token(salt_usuario, contraseña_usuario )
+                token = self.cripto.crear_token(salt_usuario, contraseña_usuario )
                 token =token.hex()
-            cripto.encriptar_json_usuarios()
+            self.cripto.encriptar_json_usuarios()
             print("Inicio de sesión exitoso")
             return self.pantalla_morosos()
         except KeyboardInterrupt:
@@ -223,8 +222,10 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 elif accion == 3:
                     fin = self.listado()
                 else: 
+                    """
                     print("Mandando cambios al Servidor...")
-                    
+                    public_key = self.certificates.extraer_public_key("Organizaciones/Servidor_Hacienda.pem")
+                    """
                     print("\nCargando página anterior...")
                     fin = True
         except KeyboardInterrupt:
@@ -234,8 +235,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
 
     def nuevo_moroso(self):
         try:
-            cripto = Cripto()
-            cripto.desencriptar_json_morosos()
+            self.cripto.desencriptar_json_morosos()
             ruta_archivo = os.path.join("Base de datos", "morosos.json")
             morosos = self.cargar_json(ruta_archivo)
 
@@ -259,7 +259,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
 
             print("Moroso añadido correctamente")
             print("--------------------------------------------------------------------------------\n")
-            cripto.encriptar_json_morosos()
+            self.cripto.encriptar_json_morosos()
             return
         
         except KeyboardInterrupt:
@@ -270,8 +270,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
     
     def borrar_moroso(self):
         try:
-            cripto = Cripto()
-            cripto.desencriptar_json_morosos()
+            self.cripto.desencriptar_json_morosos()
             ruta_archivo = os.path.join("Base de datos", "morosos.json")
             morosos = self.cargar_json(ruta_archivo)
 
@@ -288,7 +287,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
 
             print("Moroso borrado correctamente")
             print("--------------------------------------------------------------------------------")
-            cripto.encriptar_json_morosos()
+            self.cripto.encriptar_json_morosos()
             return
         except KeyboardInterrupt:
             a = ki()
@@ -296,8 +295,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
     
     def listado(self):
         try:
-            cripto = Cripto()
-            cripto.desencriptar_json_morosos()
+            self.cripto.desencriptar_json_morosos()
             ruta_archivo = os.path.join("Base de datos", "morosos.json")
             morosos = self.cargar_json(ruta_archivo)
 
@@ -315,7 +313,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 print(f"  - Deuda: {deuda} €")
                 print(f"  - Tiempo con deuda: {tiempo_deuda}")
                 print("--------------------------------------------------------------------------------")
-            cripto.encriptar_json_morosos()
+            self.cripto.encriptar_json_morosos()
             return
         except KeyboardInterrupt:
             a = ki()

@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from cryptography.hazmat.primitives.asymmetric import rsa
 import json 
 from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
 class Cripto():
     def __init__(self):
@@ -165,6 +166,16 @@ class Cripto():
         hash.update(message_data)
         result = hash.finalize()
         return result
-    
-
-
+    """
+    def encript_with_rsa(self,key,message):
+        bit_message = message.encode('utf-8')
+        ciphertext = key.encrypt(
+                    message,
+                    padding.OAEP(
+                                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                algorithm=hashes.SHA256(),
+                                label=None
+                                )               
+                    )
+        return ciphertext
+"""

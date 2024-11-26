@@ -191,8 +191,15 @@ class Certificates():
                           encryption_algorithm=serialization.NoEncryption()  
                           )
         ruta = "Organizaciones/Servidor_Hacienda.pem"
-
+        
         with open(ruta, "wb") as archivo:
             archivo.write(cert_pem)
             archivo.write(private_key_pem)
+    """      
+    def extraer_public_key(self, ruta:str):
+        with open(ruta, "rb") as pem_file:
+            certificate = load_pem_x509_certificate(pem_file.read())
 
+        return certificate.public_key()
+    
+"""
