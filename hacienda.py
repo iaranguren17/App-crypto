@@ -199,12 +199,12 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 token =token.hex()
             self.cripto.encriptar_json_usuarios()
             print("Inicio de sesión exitoso")
-            return self.pantalla_morosos()
+            return self.pantalla_morosos(nombre_usuario)
         except KeyboardInterrupt:
             a = ki()
             a.Interrupt(1)
 
-    def pantalla_morosos(self):
+    def pantalla_morosos(self, inspector):
         try:    
             fin = False
             while not fin:
@@ -232,8 +232,22 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                     print("Comprobando certificado...")
                     ---
                     print("Enviando claves...")
-                    ---
-                    print("Enviando certificados")
+                    """
+                    #Hash del mensaje
+                    if os.path.exists("Base de datos/morosos.json"):
+                        with open("Base de datos/morosos.json", 'rb') as archivo:
+                         mensaje_encriptado = archivo.read()
+                    
+                    hash_mensaje= self.cripto.generate_hash(mensaje_encriptado)
+                    #Firma hash_mensaje con mi privada
+                    self.cripto.desencriptar_json_usuarios()
+                    usuarios= self.cargar_json("Base de datos/usuarios.json")
+                    private_key = usuarios[inspector]["Private_key"]
+                    self.cripto.encriptar_json_usuarios
+                    
+                    
+                    """
+                    print("Enviando certificados...")
                     ---
                     print("Esperando respuesta del servidor")
                     ---
@@ -243,7 +257,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                     fin = True
         except KeyboardInterrupt:
             a = ki()
-            a.Interrupt()
+            a.Interrupt(1)
         
 
     def nuevo_moroso(self):
@@ -360,15 +374,12 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         with open(ruta_archivo, 'w') as archivo:
             json.dump(list, archivo, indent=4)
 
-
 """
 a = Menus()
-public_key = a.certificates.extraer_public_key("Organizaciones/Servidor_Hacienda.pem")
-clave= a.cripto.leer_clave_chacha()
-print(clave)
-encriptado = a.cripto.encript_with_rsa(public_key,clave)
-print(encriptado)
-ruta= "Organizaciones/Servidor_Hacienda.pem"
-private_key = a.certificates.extraer_private_key(ruta)
-desencriptado = a.cripto.decrypt_with_rsa(private_key, encriptado)
-print(desencriptado == clave)"""
+a.cripto.encriptar_json_usuarios()
+
+usuarios= a.cargar_json("Base de datos/usuarios.json")
+usuario = input("Nombre: ")
+private_key = usuarios[usuario]["Private_key"]
+print(private_key)
+"""

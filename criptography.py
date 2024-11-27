@@ -160,7 +160,7 @@ class Cripto():
         )
         return private_key
     
-    #genera un hash de 
+    #genera un hash del mensaje
     def generate_hash(self, message):
         hash = hashes.Hash(hashes.SHA256())
         if isinstance(message, bytes):
@@ -196,9 +196,19 @@ class Cripto():
                                 label=None))
         return plaintext
     
-    def firma(self, message):
+    def firma(self, message, private_key):
         if isinstance(message, bytes):
             bit_message = message
         else:
             bit_message = message.encode('utf-8')
+        signature = private_key.sign(
+                    message,
+                    padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA256()),
+                    salt_length=padding.PSS.MAX_LENGTH),
+                    hashes.SHA256()
+                    )
+        return signature
+
+
         
