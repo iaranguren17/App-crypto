@@ -160,17 +160,25 @@ class Cripto():
         )
         return private_key
     
+    #genera un hash de 
     def generate_hash(self, message):
         hash = hashes.Hash(hashes.SHA256())
-        message_data = message.encode('utf-8')
+        if isinstance(message, bytes):
+            message_data = message
+        else:
+            message_data = message.encode('utf-8')
         hash.update(message_data)
         result = hash.finalize()
         return result
-    """
+    
     def encript_with_rsa(self,key,message):
-        bit_message = message.encode('utf-8')
+        if isinstance(message, bytes):
+            bit_message = message
+        else:
+            bit_message = message.encode('utf-8')
+        
         ciphertext = key.encrypt(
-                    message,
+                    bit_message,
                     padding.OAEP(
                                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                 algorithm=hashes.SHA256(),
@@ -178,4 +186,19 @@ class Cripto():
                                 )               
                     )
         return ciphertext
-"""
+    
+    def decrypt_with_rsa(self,private_key,encript_message):
+        plaintext = private_key.decrypt(
+                    encript_message,
+                    padding.OAEP(
+                                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                algorithm=hashes.SHA256(),
+                                label=None))
+        return plaintext
+    
+    def firma(self, message):
+        if isinstance(message, bytes):
+            bit_message = message
+        else:
+            bit_message = message.encode('utf-8')
+        

@@ -222,9 +222,22 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 elif accion == 3:
                     fin = self.listado()
                 else: 
-                    """
+                    ruta_hacienda= "Organizaciones/Servidor_Hacienda.pem"
                     print("Mandando cambios al Servidor...")
-                    public_key = self.certificates.extraer_public_key("Organizaciones/Servidor_Hacienda.pem")
+                    print("Recibiendo clave pública...")
+                    public_key_hacienda = self.certificates.extraer_public_key(ruta_hacienda)
+                    """
+                    print("Recibiendo certificados...")
+                    ---
+                    print("Comprobando certificado...")
+                    ---
+                    print("Enviando claves...")
+                    ---
+                    print("Enviando certificados")
+                    ---
+                    print("Esperando respuesta del servidor")
+                    ---
+                    print("Información enviada de forma segura :D")
                     """
                     print("\nCargando página anterior...")
                     fin = True
@@ -348,4 +361,14 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             json.dump(list, archivo, indent=4)
 
 
-
+"""
+a = Menus()
+public_key = a.certificates.extraer_public_key("Organizaciones/Servidor_Hacienda.pem")
+clave= a.cripto.leer_clave_chacha()
+print(clave)
+encriptado = a.cripto.encript_with_rsa(public_key,clave)
+print(encriptado)
+ruta= "Organizaciones/Servidor_Hacienda.pem"
+private_key = a.certificates.extraer_private_key(ruta)
+desencriptado = a.cripto.decrypt_with_rsa(private_key, encriptado)
+print(desencriptado == clave)"""

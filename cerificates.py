@@ -195,11 +195,19 @@ class Certificates():
         with open(ruta, "wb") as archivo:
             archivo.write(cert_pem)
             archivo.write(private_key_pem)
-    """      
+
+    #Extrae la public key en formato objeto      
     def extraer_public_key(self, ruta:str):
         with open(ruta, "rb") as pem_file:
             certificate = load_pem_x509_certificate(pem_file.read())
 
         return certificate.public_key()
     
-"""
+    #Extrae la private key en formato objeto 
+    def extraer_private_key(self, ruta:str):
+        with open(ruta, "rb") as pem_file:
+            private_key = serialization.load_pem_private_key(
+                        pem_file.read(),
+                        password=None  
+                        )
+        return private_key
