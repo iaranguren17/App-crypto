@@ -9,6 +9,8 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 import json 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.primitives import serialization
 
 class Cripto():
     def __init__(self):
@@ -171,6 +173,22 @@ class Cripto():
         result = hash.finalize()
         return result
     
+    #Extrae la public key en formato objeto      
+    def extraer_public_key(self, ruta:str):
+        with open(ruta, "rb") as pem_file:
+            certificate = load_pem_x509_certificate(pem_file.read())
+
+        return certificate.public_key()
+    
+    #Extrae la private key en formato objeto 
+    def extraer_private_key(self, ruta:str):
+        with open(ruta, "rb") as pem_file:
+            private_key = serialization.load_pem_private_key(
+                        pem_file.read(),
+                        password=None  
+                        )
+        return private_key
+
     def encript_with_rsa(self,key,message):
         if isinstance(message, bytes):
             bit_message = message
@@ -198,17 +216,77 @@ class Cripto():
     
     def firma(self, message, private_key):
         if isinstance(message, bytes):
-            bit_message = message
+            bytes_message = message
         else:
-            bit_message = message.encode('utf-8')
+            bytes_message = message.encode('utf-8')
         signature = private_key.sign(
-                    message,
+                    bytes_message,
                     padding.PSS(
                     mgf=padding.MGF1(hashes.SHA256()),
                     salt_length=padding.PSS.MAX_LENGTH),
                     hashes.SHA256()
                     )
         return signature
+    
+    def encriptar_json_final_hacienda(self):
+        ruta ="Base de datos/morosos.json"
+        with open(ruta, "r") as archivo:
+            lista_morosos = json.load(archivo)
+        #Firma del mensaje
+        lista_morosos_bytes = json.dumps(lista_morosos).encode('utf-8')
+        print(json.dumps(lista_morosos))
+        print("--------------------------\n")
+        print(lista_morosos_bytes)
+        private_key = self.extraer_private_key("Organizaciones/Servidor_Hacienda.pem")
+        firma =  self.firma(lista_morosos_bytes, private_key)
+        #Añadimos la firma al mensaje
+        mensaje_firmado ={
+            "mensaje" : lista_morosos_bytes.decode('utf-8'),
+            "firma" : firma.hex()
+                    }
+        print("\n \n")
+        print(mensaje_firmado)
+        #Transformamos el mensaje firmado a bytes
+        mensaje_firmado_serializado = json.dumps(mensaje_firmado).encode('utf-8')
+        #Vamos encriptando en fragmentos de 190B con RSA
+        public_key = self.extraer_public_key("Organizaciones/Servidor_Hacienda.pem")
+        encripted_list = []
+        inicio = 0
+        fragment_size = 190
+        while inicio < len(mensaje_firmado_serializado):
+            fin = min(inicio + fragment_size, len(mensaje_firmado_serializado))
+            encripted_part = self.encript_with_rsa(public_key, mensaje_firmado_serializado[inicio:fin])
+            encripted_list.append(encripted_part)
+            inicio = fin
+        #Guardamos la base de datos
+        with open(ruta, 'wb') as archivo:
+            for fragment in encripted_list:
+                archivo.write(fragment)  
+            archivo.close()
 
+        return 
 
+    def desencriptar_json_inicial_hacienda(self):
+        ruta = "Base de datos/morosos.json"
+        with open(ruta, 'rb') as archivo:
+            datos_encriptados = archivo.read()
         
+        private_key = self.extraer_private_key("Organizaciones/Servidor_Hacienda.pem")
+        decripted_list = []
+        inicio = 0
+        fragment_size = 256
+        for i in range(0,len(datos_encriptados), fragment_size):
+            fragment = datos_encriptados[i: i+fragment_size]
+            decripted_fragment = self.decrypt_with_rsa(private_key,fragment)
+            decripted_list.append(decripted_fragment)
+
+        decripted_message = b"".join(decripted_list)
+        with open(ruta, 'w') as archivo:
+            archivo.write(decripted_message.decode('utf-8'))
+            
+        return
+
+a = Cripto()
+a.encriptar_json_final_hacienda()
+
+

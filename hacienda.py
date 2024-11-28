@@ -222,37 +222,13 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 elif accion == 3:
                     fin = self.listado()
                 else: 
-                    ruta_hacienda= "Organizaciones/Servidor_Hacienda.pem"
-                    print("Mandando cambios al Servidor...")
-                    print("Recibiendo clave pública...")
-                    public_key_hacienda = self.certificates.extraer_public_key(ruta_hacienda)
-                    """
-                    print("Recibiendo certificados...")
-                    ---
-                    print("Comprobando certificado...")
-                    ---
-                    print("Enviando claves...")
-                    """
-                    #Hash del mensaje
-                    if os.path.exists("Base de datos/morosos.json"):
-                        with open("Base de datos/morosos.json", 'rb') as archivo:
-                         mensaje_encriptado = archivo.read()
-                    
-                    hash_mensaje= self.cripto.generate_hash(mensaje_encriptado)
-                    #Firma hash_mensaje con mi privada
-                    self.cripto.desencriptar_json_usuarios()
-                    usuarios= self.cargar_json("Base de datos/usuarios.json")
-                    private_key = usuarios[inspector]["Private_key"]
-                    self.cripto.encriptar_json_usuarios
                     
                     
-                    """
-                    print("Enviando certificados...")
-                    ---
-                    print("Esperando respuesta del servidor")
-                    ---
-                    print("Información enviada de forma segura :D")
-                    """
+                #Cifrado final del Servidor de Hacienda
+                    
+
+                    
+
                     print("\nCargando página anterior...")
                     fin = True
         except KeyboardInterrupt:
@@ -374,12 +350,11 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         with open(ruta_archivo, 'w') as archivo:
             json.dump(list, archivo, indent=4)
 
+
 """
 a = Menus()
-a.cripto.encriptar_json_usuarios()
-
-usuarios= a.cargar_json("Base de datos/usuarios.json")
-usuario = input("Nombre: ")
-private_key = usuarios[usuario]["Private_key"]
+print(lista_morosos)
 print(private_key)
+print("-----------------------------------")
+print(firma_mensaje)
 """
