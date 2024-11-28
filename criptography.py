@@ -5,8 +5,9 @@ from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
-
+from cryptography.hazmat.primitives.asymmetric import rsa
 import json 
+from cryptography.hazmat.primitives import hashes
 
 class Cripto():
     def __init__(self):
@@ -104,11 +105,14 @@ class Cripto():
         ruta = "Base de datos/usuarios.json"
         clave = self.leer_clave_servidor()
         fernet = Fernet(clave)
-        
+        directorio = os.path.dirname(ruta)
+        if not os.path.exists(directorio):
+            return
         try:
             with open(ruta, 'rb') as archivo:
                 datos_encriptados = archivo.read()
-
+            if datos_encriptados == {}:
+                return
             # Intentar desencriptar los datos
             datos_desencriptados = fernet.decrypt(datos_encriptados)
             
@@ -116,7 +120,7 @@ class Cripto():
             with open(ruta, 'wb') as archivo:
                 archivo.write(datos_desencriptados)
             archivo.close()
-        
+            return
         except InvalidToken:
             print("Error: La clave no es válida o los datos han sido modificados.")
         
@@ -147,3 +151,20 @@ class Cripto():
                     print("Error al desencriptar morosos.json:", e)
                     return None
         return
+
+    def generate_private_key(self):
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048
+        )
+        return private_key
+    
+    def generate_hash(self, message):
+        hash = hashes.Hash(hashes.SHA256())
+        message_data = message.encode('utf-8')
+        hash.update(message_data)
+        result = hash.finalize()
+        return result
+    
+
+
