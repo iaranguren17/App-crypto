@@ -5,18 +5,18 @@ from cryptography.x509 import NameOID
 from cryptography.x509.oid import AuthorityInformationAccessOID
 from cryptography import x509
 from datetime import datetime, timedelta
-import random
+import random, json, os
 from criptography import Cripto
 from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 
 class Certificates():
     def __init__(self):
-        pass
+        self.cripto = Cripto()
     
     def create_root_certificate(self):
-        cripto = Cripto()
-        root_key = cripto.generate_private_key()
+        root_key = self.cripto.generate_private_key()
 
         root_name = x509.Name([
             x509.NameAttribute(NameOID.COUNTRY_NAME, "ES"),
@@ -52,8 +52,6 @@ class Certificates():
             
 
     def create_intermidiates_certificates(self):
-        cripto = Cripto()       
-        
         ruta= "Organizaciones/Ministerio_de_Hacienda.pem"
         with open(ruta, "rb") as pem_file:
             root_key = serialization.load_pem_private_key(
@@ -65,7 +63,7 @@ class Certificates():
         
         intermediate_org_names = ["Colegio Inspectores Madrid", "Colegio Inspectores Barcelona", "Agencia Tributaria"]
         for i in intermediate_org_names:
-            intermediate_key = cripto.generate_private_key() 
+            intermediate_key = self.cripto.generate_private_key() 
             certificate_name = x509.Name([
                         x509.NameAttribute(NameOID.COUNTRY_NAME, "ES"),
                         x509.NameAttribute(NameOID.ORGANIZATION_NAME, i),
@@ -94,9 +92,8 @@ class Certificates():
 
 
     def create_user_certificate(self, name, father):
-
-        cripto = Cripto()       
-        user_key = cripto.generate_private_key() 
+       
+        user_key = self.cripto.generate_private_key()
         
         if father == "Barcelona":
             ruta= "Organizaciones/Colegio_Inspectores_Barcelona.pem"
@@ -158,8 +155,7 @@ class Certificates():
 
 
     def create_serv_hacienda_certificate(self):
-        cripto = Cripto()       
-        user_key = cripto.generate_private_key()     
+        user_key = self.cripto.generate_private_key()
         ruta= "Organizaciones/Agencia_Tributaria.pem"
         with open(ruta, "rb") as pem_file:
                 inter_key = serialization.load_pem_private_key(
@@ -195,4 +191,81 @@ class Certificates():
         with open(ruta, "wb") as archivo:
             archivo.write(cert_pem)
             archivo.write(private_key_pem)
+    
+    def load_certificate_from_file(self, file_path):
+         with open(file_path, "rb") as file:
+              return x509.load_pem_x509_certificate(file.read(), default_backend())
+    
+    def load_public_key_from_file(self, file_path):
+        with open(file_path, "rb") as file:
+            return serialization.load_pem_public_key(file.read(), backend=default_backend())
+        
+    def load_certificate_from_json(self, json_path, inspector_name):
+        try:
+            self.cripto.desencriptar_json_usuarios()
+            with open(json_path, "r") as file:
+                data = json.load(file)
+
+            if inspector_name not in data:
+                raise ValueError(f"El inspector '{inspector_name}' no se encuentra en el archivo JSON.")
+
+            inspector_cert_pem = data[inspector_name]["Certificado"]
+            temp_cert_path = f"temp_{inspector_name.replace(' ', '_')}.pem"
+            with open(temp_cert_path, "w") as temp_file:
+                temp_file.write(inspector_cert_pem)
+            
+            self.cripto.encriptar_json_usuarios()
+            return temp_cert_path
+        except Exception as e:
+            print(f"Error al cargar el certificado del inspector desde JSON: {e}")
+            self.cripto.encriptar_json_usuarios()
+            return None
+           
+    def verify_certificate_chain(self, cert_path, chain_paths):
+        try:
+            child_cert = self.load_certificate_from_file(cert_path)
+            for chain_path in chain_paths:
+                parent_cert = self.load_certificate_from_file(chain_path)
+                parent_public_key = parent_cert.public_key()
+                parent_public_key.verify(
+                    signature = child_cert.signature,
+                    data = child_cert.tbs_certificate_bytes,
+                    padding = padding.PKCS1v15(),
+                    algorithm = SHA256()
+                )
+                print(f"Certificado {child_cert.subject.rfc4514_string()} validado con {parent_cert.subject.rfc4514_string()}")
+                child_cert = parent_cert
+            print("La cadena de confianza es válida")
+            return True
+           
+        except Exception as e:
+             print(f"Error al validar la clave pública: {e}")
+             return False
+        
+    def verify_inspector_certificates(self, json_path, inspector_name, chain_paths):
+        cert_path = self.load_certificate_from_json(json_path, inspector_name)
+        if not cert_path:
+            return False
+        
+        is_valid = self.verify_certificate_chain(cert_path, chain_paths)
+        
+        if os.path.exists(cert_path):
+            os.remove(cert_path)
+        
+        return is_valid
+        
+
+             
+certificates = Certificates()
+cert_path = "Organizaciones/Servidor_Hacienda.pem"
+chain_paths = [
+    "Organizaciones/Agencia_Tributaria.pem",
+    "Organizaciones/Ministerio_de_Hacienda.pem"
+]
+
+if certificates.verify_certificate_chain(cert_path, chain_paths):
+    print("La cadena de certificados del servidor Hacienda es válida.")
+else:
+    print("La cadena de certificados del servidor Hacienda no es válida.")   
+    
 

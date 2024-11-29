@@ -165,6 +165,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         print("--------------------------------------------------------------------------------")
         try:
             cripto = Cripto()
+            certificate = Certificates()
             cripto.desencriptar_json_usuarios()
             ruta_archivo = os.path.join("Base de datos", "usuarios.json")
             usuarios = self.cargar_json(ruta_archivo)
@@ -182,6 +183,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             intentos = 4
             contraseña_usuario = getpass.getpass("Contraseña: ")
             
+            ciudad_usuario = usuarios[nombre_usuario]["ciudad"]
             token_usuario = usuarios[nombre_usuario]["token"]
             salt_usuario = usuarios[nombre_usuario]["salt"]
             salt_usuario = bytes.fromhex(salt_usuario)
@@ -200,6 +202,18 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 token =token.hex()
             cripto.encriptar_json_usuarios()
             print("Inicio de sesión exitoso")
+            print("Vamos verificar las certificaciones")
+
+            if ciudad_usuario == "Madrid":
+                chain_path = ["Organizaciones/Colegio_Inspectores_Madrid.pem","Organizaciones/Ministerio_de_Hacienda.pem"]
+            else:
+                chain_path = ["Organizaciones/Colegio_Inspectores_Barcelona.pem","Organizaciones/Ministerio_de_Hacienda.pem"]
+
+            chain_serv = ["Organizaciones/Agencia_Tributaria.pem","Organizaciones/Ministerio_de_Hacienda.pem"]
+            cert_path = "Organizaciones/Servidor_Hacienda.pem"
+
+            certificate.verify_inspector_certificates(ruta_archivo, nombre_usuario, chain_path)
+            certificate.verify_certificate_chain(cert_path, chain_serv)
             return self.pantalla_morosos()
         except KeyboardInterrupt:
             a = ki()
