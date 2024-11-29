@@ -207,6 +207,28 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
     def pantalla_morosos(self, inspector):
         try:    
             fin = False
+            #Actuamos como Servidor Hacienda
+            #Primero desencriptamos con nuestra privada la base de datos
+            self.cripto.desencriptar_json_inicial_hacienda()
+            #Sacamos la firma y comprobamos que es correcta
+            with open("Base de datos/morosos.json", "r") as archivo:
+                mensaje_firma = json.load(archivo)
+            firma = mensaje_firma["firma"]
+            mensaje = mensaje_firma["mensaje"]
+            mensaje_serializado = json.dumps(mensaje).encode('utf-8')
+            firma_bytes = bytes.fromhex(firma)
+            public_key = self.cripto.extraer_public_key("Organizaciones/Servidor_Hacienda.pem")
+            if not  self.cripto.verificar_firma(public_key, firma_bytes, mensaje_serializado):
+                print("Problema de seguridad de la base de datos.\nPor favor, espere a que se resuelva")
+                return 
+            
+            #Una vez  ferificado su firma, solo es necesario que mande el mensaje
+            with open("Base de datos/morosos.json", "w") as archivo:
+                archivo.write(json.dumps(mensaje))
+            
+            #Ahora hay que crear una clave de Sesión, que sera Chacha20
+            
+
             while not fin:
                 print("--------------------------------------------------------------------------------")
                 print("LISTA DE MOROSOS")
@@ -350,11 +372,18 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
         with open(ruta_archivo, 'w') as archivo:
             json.dump(list, archivo, indent=4)
 
-
-"""
 a = Menus()
-print(lista_morosos)
-print(private_key)
-print("-----------------------------------")
-print(firma_mensaje)
-"""
+with open("Base de datos/morosos.json", "r") as archivo:
+                mensaje_firma = json.load(archivo)
+firma = mensaje_firma["firma"]
+mensaje = mensaje_firma["mensaje"]
+mensaje_serializado = json.dumps(mensaje).encode('utf-8')
+firma_bytes = bytes.fromhex(firma)
+public_key = a.cripto.extraer_public_key("Organizaciones/Servidor_Hacienda.pem")
+print(a.cripto.verificar_firma(public_key, firma_bytes, mensaje_serializado))
+with open("Base de datos/morosos.json", "w") as archivo:
+                archivo.write(json.dumps(mensaje))
+
+
+
+

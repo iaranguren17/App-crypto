@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.x509 import load_pem_x509_certificate
 from cryptography.hazmat.primitives import serialization
 
+
 class Cripto():
     def __init__(self):
         pass
@@ -228,24 +229,33 @@ class Cripto():
                     )
         return signature
     
+    def verificar_firma(self, public_key, signature, message):
+        try: 
+            public_key.verify(
+                signature,
+                message,
+                padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH),
+                hashes.SHA256())
+            return True
+        except Exception :
+            return False
+    
     def encriptar_json_final_hacienda(self):
         ruta ="Base de datos/morosos.json"
         with open(ruta, "r") as archivo:
             lista_morosos = json.load(archivo)
         #Firma del mensaje
         lista_morosos_bytes = json.dumps(lista_morosos).encode('utf-8')
-        print(json.dumps(lista_morosos))
-        print("--------------------------\n")
-        print(lista_morosos_bytes)
         private_key = self.extraer_private_key("Organizaciones/Servidor_Hacienda.pem")
         firma =  self.firma(lista_morosos_bytes, private_key)
         #Añadimos la firma al mensaje
         mensaje_firmado ={
-            "mensaje" : lista_morosos_bytes.decode('utf-8'),
+            "mensaje" : lista_morosos,
             "firma" : firma.hex()
                     }
-        print("\n \n")
-        print(mensaje_firmado)
+        
         #Transformamos el mensaje firmado a bytes
         mensaje_firmado_serializado = json.dumps(mensaje_firmado).encode('utf-8')
         #Vamos encriptando en fragmentos de 190B con RSA
@@ -281,12 +291,12 @@ class Cripto():
             decripted_list.append(decripted_fragment)
 
         decripted_message = b"".join(decripted_list)
+
         with open(ruta, 'w') as archivo:
             archivo.write(decripted_message.decode('utf-8'))
             
         return
 
-a = Cripto()
-a.encriptar_json_final_hacienda()
+
 
 
