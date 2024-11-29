@@ -68,7 +68,7 @@ class Cripto():
             clave = self.generar_clave_chacha20()
             with open(ruta, 'wb') as archivo_clave:  # Guardamos la clave en binario
                 archivo_clave.write(clave)
-            print(f"El archivo {ruta} no existía y ha sido creado con una nueva clave.")
+                print("Clave de sesión creada con éxito")
             return clave
         else:
             with open(ruta, 'rb') as archivo_clave:
@@ -87,9 +87,9 @@ class Cripto():
         archivo.close()
         return
     
-    def encriptar_json_morosos(self):
+    def encriptar_json_morosos(self,clave):
         ruta = "Base de datos/morosos.json"
-        clave = self.leer_clave_chacha()
+        
         chacha = ChaCha20Poly1305(clave)
         nonce = os.urandom(12)  
 
@@ -110,7 +110,7 @@ class Cripto():
         clave = self.leer_clave_servidor()
         fernet = Fernet(clave)
         directorio = os.path.dirname(ruta)
-        if not os.path.exists(directorio):
+        if not os.path.exists(ruta):
             return
         try:
             with open(ruta, 'rb') as archivo:
@@ -131,9 +131,9 @@ class Cripto():
         except Exception as e:
             print(f"Ocurrió un error al desencriptar usuarios.json: {e}")
     
-    def desencriptar_json_morosos(self):
+    def desencriptar_json_morosos(self,clave):
         ruta = "Base de datos/morosos.json"
-        clave = self.leer_clave_chacha()
+        
         chacha = ChaCha20Poly1305(clave)
 
         if os.path.exists(ruta):
@@ -296,7 +296,26 @@ class Cripto():
             archivo.write(decripted_message.decode('utf-8'))
             
         return
+    
+    def cifrar_clave_sesión(self, inspector, clave_sesión):
+        #Obtenemos clave pública del inspector
+        self.desencriptar_json_usuarios()
+        ruta_archivo = os.path.join("Base de datos", "usuarios.json")
+        with open(ruta_archivo, 'r') as archivo:
+            usuarios = json.load(archivo)
+        public_key_pem = usuarios[inspector]["Public_key"]
+        self.encriptar_json_usuarios()
+        public_key_bytes = public_key_pem.encode('utf-8')
+        public_key = serialization.load_pem_public_key(public_key_bytes)
+        hash_clave = self.generate_hash(clave)
+        private_key_hacienda = self.extraer_private_key("Organizaciones/Servidor_Hacienda.pem")
+        firma_hash = self.firma(hash_clave, private_key_hacienda)
+        
 
 
+
+a= Cripto()
+clave = a.leer_clave_chacha()
+a.cifrar_clave_sesión("Luis del Valle", clave)
 
 

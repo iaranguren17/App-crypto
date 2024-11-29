@@ -206,6 +206,8 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
 
     def pantalla_morosos(self, inspector):
         try:    
+            #En pantalla del Inspector
+            print("Recibiendo datos de Hacienda...")
             fin = False
             #Actuamos como Servidor Hacienda
             #Primero desencriptamos con nuestra privada la base de datos
@@ -227,7 +229,11 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 archivo.write(json.dumps(mensaje))
             
             #Ahora hay que crear una clave de Sesión, que sera Chacha20
+            clave_sesión = self.cripto.leer_clave_chacha()
+            #La ciframos y la dejamos lista para enviar
             
+            
+            self.cripto.encriptar_json_morosos(clave_sesión)
 
             while not fin:
                 print("--------------------------------------------------------------------------------")
@@ -371,19 +377,5 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
     def subir_json(self, ruta_archivo, list):
         with open(ruta_archivo, 'w') as archivo:
             json.dump(list, archivo, indent=4)
-
-a = Menus()
-with open("Base de datos/morosos.json", "r") as archivo:
-                mensaje_firma = json.load(archivo)
-firma = mensaje_firma["firma"]
-mensaje = mensaje_firma["mensaje"]
-mensaje_serializado = json.dumps(mensaje).encode('utf-8')
-firma_bytes = bytes.fromhex(firma)
-public_key = a.cripto.extraer_public_key("Organizaciones/Servidor_Hacienda.pem")
-print(a.cripto.verificar_firma(public_key, firma_bytes, mensaje_serializado))
-with open("Base de datos/morosos.json", "w") as archivo:
-                archivo.write(json.dumps(mensaje))
-
-
 
 
