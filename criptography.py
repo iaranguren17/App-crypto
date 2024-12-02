@@ -243,7 +243,7 @@ class Cripto():
             return False
     
     def encriptar_json_final_hacienda(self):
-        ruta ="Base de datos/morosos.json"
+        ruta ="Organizaciones/Servidor_Hacienda/Base_de_datos.json"
         with open(ruta, "r") as archivo:
             lista_morosos = json.load(archivo)
         #Firma del mensaje
@@ -277,7 +277,7 @@ class Cripto():
         return 
 
     def desencriptar_json_inicial_hacienda(self):
-        ruta = "Base de datos/morosos.json"
+        ruta = "Organizaciones/Servidor_Hacienda/Base_de_datos.json"
         with open(ruta, 'rb') as archivo:
             datos_encriptados = archivo.read()
         
@@ -342,7 +342,7 @@ class Cripto():
         return 
     
     def cifrar_mensaje(self,clave_sesion):
-        ruta = "Base de datos/morosos.json"
+        ruta = "Organizaciones/Servidor_Hacienda/Base_de_datos.json"
         with open(ruta, 'r') as archivo:
             mensaje = json.load(archivo)
         mensaje_bytes = json.dumps(mensaje).encode('utf-8')
@@ -481,17 +481,51 @@ class Cripto():
             archivo.write(morosos)
         if os.path.exists(ruta):
             os.remove(ruta)
-        if os.path.exists("Base de datos/clave_chacha.txt"):
-            os.remove(ruta)
+        ruta_clave = "Base de datos/clave_chacha.txt"
+        if os.path.exists(ruta_clave):
+            os.remove(ruta_clave)
         return
     
     def actualizar_base_de_datos(self):
         #Desencriptamos el mensaje
+        ruta = "Mensajes/mensaje.json"
+        with open("Organizaciones/Servidor_Hacienda/clave_sesión.txt", 'rb') as archivo:
+            clave = archivo.read()
         
+        chacha = ChaCha20Poly1305(clave)
 
+        if os.path.exists(ruta):
+            with open(ruta, 'rb') as archivo:
+                datos_encriptados = archivo.read()
+                if len(datos_encriptados) < 13:  # El tamaño mínimo es nonce (12) + 1 byte
+                    return 
 
-a= Cripto()
-a.enviar_a_hacienda()
+                nonce = datos_encriptados[:12]
+                datos = datos_encriptados[12:]
 
-
-
+                # Desencriptar los datos
+                try:
+                    datos_desencriptados = chacha.decrypt(nonce, datos, None)
+                    with open(ruta, 'wb') as archivo:
+                        archivo.write(datos_desencriptados)
+                    return
+    
+                except Exception as e:
+                    print("Error al desencriptar morosos.json:", e)
+                    return 
+        
+        #Actualizamos la Base, borramos el mensaje y la clave de sesion
+        
+        ruta = "Mensajes/mensaje.json" 
+        with open(ruta, 'rb') as archivo:
+            morosos = archivo.read()
+        ruta_mensaje = "Organizaciones/Servidor_Hacienda/Base_de_datos.json"
+        with open(ruta_mensaje, 'wb') as archivo:
+            archivo.write(morosos)
+        if os.path.exists("Mensajes"):
+            os.rmdir("Mensajes")
+        ruta_clave = "Organizaciones/Servidor_Hacienda/clave_sesión.txt"
+        if os.path.exists(ruta_clave):
+            os.remove(ruta_clave)
+        return
+        

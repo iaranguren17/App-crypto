@@ -206,14 +206,17 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
 
     def pantalla_morosos(self, inspector):
         try:    
+            
             #En pantalla del Inspector
+            
             print("Recibiendo datos de Hacienda...")
             fin = False
+            
             #Actuamos como Servidor Hacienda
             #Primero desencriptamos con nuestra privada la base de datos
             self.cripto.desencriptar_json_inicial_hacienda()
             #Sacamos la firma y comprobamos que es correcta
-            with open("Base de datos/morosos.json", "r") as archivo:
+            with open("Organizaciones/Servidor_Hacienda/Base_de_datos.json", "r") as archivo:
                 mensaje_firma = json.load(archivo)
             firma = mensaje_firma["firma"]
             mensaje = mensaje_firma["mensaje"]
@@ -224,8 +227,8 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 print("Problema de seguridad de la base de datos.\nPor favor, espere a que se resuelva")
                 return 
             
-            #Una vez  ferificado su firma, solo es necesario que mande el mensaje
-            with open("Base de datos/morosos.json", "w") as archivo:
+            #Una vez  ferificado su firma, solo es necesario que mande los mensajes
+            with open("Organizaciones/Servidor_Hacienda/Base_de_datos.json", "w") as archivo:
                 archivo.write(json.dumps(mensaje))
             
             #Ahora hay que crear una clave de Sesión, que sera Chacha20
@@ -268,13 +271,10 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                     self.cripto.enviar_a_hacienda()
                 #Una vez madado el mensaje, volvemos a actuar como Hacienda
                 #Cogemos el mensaje y lo actualizamos en la base de datos
-                    
-                    
+                    self.cripto.actualizar_base_de_datos()    
                 #Cifrado final del Servidor de Hacienda
-                    
-
-                    
-
+                    self.cripto.encriptar_json_final_hacienda()
+                    print("Proceso Terminado con éxito")
                     print("\nCargando página anterior...")
                     fin = True
         except KeyboardInterrupt:
