@@ -190,7 +190,7 @@ class Certificates():
                           format=serialization.PrivateFormat.TraditionalOpenSSL,
                           encryption_algorithm=serialization.NoEncryption()  
                           )
-        ruta = "Organizaciones/Servidor_Hacienda.pem"
+        ruta = "Organizaciones/Servidor_Hacienda/Servidor_Hacienda.pem"
         
         with open(ruta, "wb") as archivo:
             archivo.write(cert_pem)

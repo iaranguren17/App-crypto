@@ -219,7 +219,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             mensaje = mensaje_firma["mensaje"]
             mensaje_serializado = json.dumps(mensaje).encode('utf-8')
             firma_bytes = bytes.fromhex(firma)
-            public_key = self.cripto.extraer_public_key("Organizaciones/Servidor_Hacienda.pem")
+            public_key = self.cripto.extraer_public_key("Organizaciones/Servidor_Hacienda/Servidor_Hacienda.pem")
             if not  self.cripto.verificar_firma(public_key, firma_bytes, mensaje_serializado):
                 print("Problema de seguridad de la base de datos.\nPor favor, espere a que se resuelva")
                 return 
@@ -229,12 +229,26 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 archivo.write(json.dumps(mensaje))
             
             #Ahora hay que crear una clave de Sesión, que sera Chacha20
-            clave_sesión = self.cripto.leer_clave_chacha()
+            clave_sesión = self.cripto.generar_clave_chacha20()
+            with open("Organizaciones/Servidor_Hacienda/clave_sesión.txt", 'wb') as archivo_clave:  # Guardamos la clave en binario
+                archivo_clave.write(clave_sesión)
             #La ciframos y la dejamos lista para enviar
-            
-            
-            self.cripto.encriptar_json_morosos(clave_sesión)
+            self.cripto.cifrar_clave_sesión(clave_sesión)
+            #Ahora toca hacer lo mismo con el mensaje
+            self.cripto.cifrar_mensaje(clave_sesión)
 
+            #Una vez enviado todo toca ser El Inspector
+            print("Comprobando Información")
+            #Primero tenemos que extraer la clave de sesión y comprobar la firma
+            verify = self.cripto.desencriptar_clave_sesion(inspector)
+            if not verify:
+                return
+            
+            #Una vez sacada la clave, desencriptamos el mensaje
+            verify = self.cripto.desencriptar_mensaje()
+            if not verify:
+                return
+            #Actualizamos la base de datos del inspector    
             while not fin:
                 print("--------------------------------------------------------------------------------")
                 print("LISTA DE MOROSOS")
@@ -250,6 +264,10 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 elif accion == 3:
                     fin = self.listado()
                 else: 
+                #Mandamos a Hacienda la lista actualizada y borramos la base de datos temporal, y la clave de sesión nuestra parte
+                    self.cripto.enviar_a_hacienda()
+                #Una vez madado el mensaje, volvemos a actuar como Hacienda
+                #Cogemos el mensaje y lo actualizamos en la base de datos
                     
                     
                 #Cifrado final del Servidor de Hacienda
