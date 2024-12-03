@@ -202,12 +202,12 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             print("Verificando certificaciones...")
 
             if ciudad_usuario == "Madrid":
-                chain_path = ["Organizaciones/Colegio_Inspectores_Madrid.pem","Organizaciones/Ministerio_de_Hacienda.pem"]
+                chain_path = ["Organizaciones/Colegio_Inspectores_Madrid.pem","Organizaciones/Servidor_Hacienda/Ministerio_de_Hacienda.pem"]
             else:
-                chain_path = ["Organizaciones/Colegio_Inspectores_Barcelona.pem","Organizaciones/Ministerio_de_Hacienda.pem"]
+                chain_path = ["Organizaciones/Colegio_Inspectores_Barcelona.pem","Organizaciones/Servidor_Hacienda/Ministerio_de_Hacienda.pem"]
 
-            chain_serv = ["Organizaciones/Agencia_Tributaria.pem","Organizaciones/Ministerio_de_Hacienda.pem"]
-            cert_path = "Organizaciones/Servidor_Hacienda.pem"
+            chain_serv = ["Organizaciones/Agencia_Tributaria.pem","Organizaciones/Servidor_Hacienda/Ministerio_de_Hacienda.pem"]
+            cert_path = "Organizaciones/Servidor_Hacienda/Servidor_Hacienda.pem"
 
             self.certificates.verify_inspector_certificates(ruta_archivo, nombre_usuario, chain_path)
             self.certificates.verify_certificate_chain(cert_path, chain_serv)

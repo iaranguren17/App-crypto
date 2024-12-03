@@ -10,10 +10,11 @@ from criptography import Cripto
 from cryptography.x509 import load_pem_x509_certificate
 from cryptography.hazmat.primitives.asymmetric import padding
 import os
+import json
 
 class Certificates():
     def __init__(self):
-        pass
+        self.cripto = Cripto()
     
     def create_root_certificate(self):
         cripto = Cripto()
@@ -203,6 +204,27 @@ class Certificates():
             archivo.write(cert_pem)
             archivo.write(private_key_pem)
 
+    def load_certificate_from_json(self, json_path, inspector_name):
+        try:
+            self.cripto.desencriptar_json_usuarios()
+            with open(json_path, "r") as file:
+                data = json.load(file)
+
+            if inspector_name not in data:
+                raise ValueError(f"El inspector '{inspector_name}' no se encuentra en el archivo JSON.")
+
+            inspector_cert_pem = data[inspector_name]["Certificado"]
+            temp_cert_path = f"temp_{inspector_name.replace(' ', '_')}.pem"
+            with open(temp_cert_path, "w") as temp_file:
+                temp_file.write(inspector_cert_pem)
+            
+            self.cripto.encriptar_json_usuarios()
+            return temp_cert_path
+        except Exception as e:
+            print(f"Error al cargar el certificado del inspector desde JSON: {e}")
+            self.cripto.encriptar_json_usuarios()
+            return None
+    
     def verify_certificate_chain(self, cert_path, chain_paths):
         try:
             child_cert = self.load_certificate_from_file(cert_path)
