@@ -204,6 +204,14 @@ class Certificates():
             archivo.write(cert_pem)
             archivo.write(private_key_pem)
 
+    def load_certificate_from_file(self, file_path):
+         with open(file_path, "rb") as file:
+              return x509.load_pem_x509_certificate(file.read(), default_backend())
+    
+    def load_public_key_from_file(self, file_path):
+        with open(file_path, "rb") as file:
+            return serialization.load_pem_public_key(file.read(), backend=default_backend())
+
     def load_certificate_from_json(self, json_path, inspector_name):
         try:
             self.cripto.desencriptar_json_usuarios()
