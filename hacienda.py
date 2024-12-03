@@ -202,7 +202,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 token =token.hex()
             cripto.encriptar_json_usuarios()
             print("Inicio de sesión exitoso")
-            print("Vamos verificar las certificaciones")
+            print("Verificando certificaciones...")
 
             if ciudad_usuario == "Madrid":
                 chain_path = ["Organizaciones/Colegio_Inspectores_Madrid.pem","Organizaciones/Ministerio_de_Hacienda.pem"]
@@ -214,6 +214,7 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
 
             certificate.verify_inspector_certificates(ruta_archivo, nombre_usuario, chain_path)
             certificate.verify_certificate_chain(cert_path, chain_serv)
+            print("Certificados verificados correctamente")
             return self.pantalla_morosos()
         except KeyboardInterrupt:
             a = ki()
