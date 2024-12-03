@@ -212,9 +212,12 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             print("Recibiendo datos de Hacienda...")
             fin = False
             
+            a = input("Enter1")
             #Actuamos como Servidor Hacienda
-            #Primero desencriptamos con nuestra privada la base de datos
+            #Primero desencriptamos con nuestra privada la base de datos, si esta no esta vacía
+            
             self.cripto.desencriptar_json_inicial_hacienda()
+            a = input("Enter2")        
             #Sacamos la firma y comprobamos que es correcta
             with open("Organizaciones/Servidor_Hacienda/Base_de_datos.json", "r") as archivo:
                 mensaje_firma = json.load(archivo)
@@ -226,27 +229,31 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
             if not  self.cripto.verificar_firma(public_key, firma_bytes, mensaje_serializado):
                 print("Problema de seguridad de la base de datos.\nPor favor, espere a que se resuelva")
                 return 
-            
+            a = input("Enter3")   
             #Una vez  ferificado su firma, solo es necesario que mande los mensajes
             with open("Organizaciones/Servidor_Hacienda/Base_de_datos.json", "w") as archivo:
                 archivo.write(json.dumps(mensaje))
-            
+            a = input("Enter4")            
             #Ahora hay que crear una clave de Sesión, que sera Chacha20
             clave_sesión = self.cripto.generar_clave_chacha20()
+            a = input("Enter5")
             with open("Organizaciones/Servidor_Hacienda/clave_sesión.txt", 'wb') as archivo_clave:  # Guardamos la clave en binario
                 archivo_clave.write(clave_sesión)
+            a = input("Enter6")
             #La ciframos y la dejamos lista para enviar
-            self.cripto.cifrar_clave_sesión(clave_sesión)
+            self.cripto.cifrar_clave_sesión(inspector, clave_sesión)
+            a = input("Enter7")
             #Ahora toca hacer lo mismo con el mensaje
             self.cripto.cifrar_mensaje(clave_sesión)
 
             #Una vez enviado todo toca ser El Inspector
             print("Comprobando Información")
             #Primero tenemos que extraer la clave de sesión y comprobar la firma
+            a = input("Enter8")
             verify = self.cripto.desencriptar_clave_sesion(inspector)
             if not verify:
                 return
-            
+            a = input("Enter9")
             #Una vez sacada la clave, desencriptamos el mensaje
             verify = self.cripto.desencriptar_mensaje()
             if not verify:
@@ -267,13 +274,18 @@ $$/   $$/ $$/   $$/  $$$$$$/  $$$$$$/ $$$$$$$$/ $$/   $$/ $$$$$$$/  $$/   $$/
                 elif accion == 3:
                     fin = self.listado()
                 else: 
+                    a = input("Enter10")
+
                 #Mandamos a Hacienda la lista actualizada y borramos la base de datos temporal, y la clave de sesión nuestra parte
                     self.cripto.enviar_a_hacienda()
                 #Una vez madado el mensaje, volvemos a actuar como Hacienda
+                    a = input("Enter11")
                 #Cogemos el mensaje y lo actualizamos en la base de datos
                     self.cripto.actualizar_base_de_datos()    
+                    a = input("Enter12")
                 #Cifrado final del Servidor de Hacienda
                     self.cripto.encriptar_json_final_hacienda()
+                    a = input("Enter13")
                     print("Proceso Terminado con éxito")
                     print("\nCargando página anterior...")
                     fin = True

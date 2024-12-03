@@ -9,6 +9,7 @@ import random
 from criptography import Cripto
 from cryptography.x509 import load_pem_x509_certificate
 from cryptography.hazmat.primitives.asymmetric import padding
+import os
 
 class Certificates():
     def __init__(self):
@@ -45,6 +46,9 @@ class Certificates():
                           encryption_algorithm=serialization.NoEncryption()  
                           )
         ruta = "Organizaciones/Ministerio_de_Hacienda.pem"
+        directorio = os.path.dirname(ruta)
+        if not os.path.exists(directorio):
+            os.makedirs(directorio)
 
         with open(ruta, "wb") as archivo:
             archivo.write(cert_pem)
@@ -191,6 +195,9 @@ class Certificates():
                           encryption_algorithm=serialization.NoEncryption()  
                           )
         ruta = "Organizaciones/Servidor_Hacienda/Servidor_Hacienda.pem"
+        directorio = os.path.dirname(ruta)
+        if not os.path.exists(directorio):
+            os.makedirs(directorio)
         
         with open(ruta, "wb") as archivo:
             archivo.write(cert_pem)

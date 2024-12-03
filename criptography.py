@@ -269,32 +269,38 @@ class Cripto():
             encripted_list.append(encripted_part)
             inicio = fin
         #Guardamos la base de datos
-        with open(ruta, 'wb') as archivo:
-            for fragment in encripted_list:
-                archivo.write(fragment)  
-            archivo.close()
+        fragmentos_serializados = [base64.b64encode(fragment).decode('utf-8') for fragment in encripted_list]
+
+        # Guardar como JSON
+        with open(ruta, 'w', encoding='utf-8') as archivo:
+            json.dump(fragmentos_serializados, archivo, indent=4) 
+
 
         return 
 
     def desencriptar_json_inicial_hacienda(self):
         ruta = "Organizaciones/Servidor_Hacienda/Base_de_datos.json"
-        with open(ruta, 'rb') as archivo:
-            datos_encriptados = archivo.read()
+        with open(ruta, 'r', encoding='utf-8') as archivo:
+            fragmentos_serializados = json.load(archivo)    
         
+        fragmentos_encriptados = [base64.b64decode(fragment) for fragment in fragmentos_serializados]
         private_key = self.extraer_private_key("Organizaciones/Servidor_Hacienda/Servidor_Hacienda.pem")
+        
         decripted_list = []
-        inicio = 0
-        fragment_size = 256
-        for i in range(0,len(datos_encriptados), fragment_size):
-            fragment = datos_encriptados[i: i+fragment_size]
-            decripted_fragment = self.decrypt_with_rsa(private_key,fragment)
-            decripted_list.append(decripted_fragment)
-
+        for fragment in fragmentos_encriptados:
+            try:
+                decripted_fragment = self.decrypt_with_rsa(private_key, fragment)
+                decripted_list.append(decripted_fragment)
+            except Exception as e:
+                print(f"Error al descifrar el fragmento: {e}")
+                raise
+            
         decripted_message = b"".join(decripted_list)
 
         with open(ruta, 'w') as archivo:
             archivo.write(decripted_message.decode('utf-8'))
             
+        self.formatear_json(ruta)
         return
     
     def cifrar_clave_sesión(self, inspector, clave_sesion):
@@ -477,6 +483,9 @@ class Cripto():
         with open(ruta, 'rb') as archivo:
             morosos = archivo.read()
         ruta_mensaje = "Mensajes/mensaje.json"
+        directorio = os.path.dirname(ruta_mensaje)
+        if not os.path.exists(directorio):
+            os.makedirs(directorio)
         with open(ruta_mensaje, 'wb') as archivo:
             archivo.write(morosos)
         if os.path.exists(ruta):
@@ -506,26 +515,51 @@ class Cripto():
                 # Desencriptar los datos
                 try:
                     datos_desencriptados = chacha.decrypt(nonce, datos, None)
-                    with open(ruta, 'wb') as archivo:
+                    ruta_mensaje = "Organizaciones/Servidor_Hacienda/Base_de_datos.json"
+                    with open(ruta_mensaje, 'wb') as archivo:
                         archivo.write(datos_desencriptados)
+                    
+                    #Actualizamos la Base, borramos el mensaje y la clave de sesion
+                    if os.path.exists(ruta):
+                        os.remove(ruta)
+                    if os.path.exists("Mensajes"):
+                        os.rmdir("Mensajes")
+                    ruta_clave = "Organizaciones/Servidor_Hacienda/clave_sesión.txt"
+                    if os.path.exists(ruta_clave):
+                        os.remove(ruta_clave)
                     return
     
                 except Exception as e:
                     print("Error al desencriptar morosos.json:", e)
                     return 
         
-        #Actualizamos la Base, borramos el mensaje y la clave de sesion
         
-        ruta = "Mensajes/mensaje.json" 
-        with open(ruta, 'rb') as archivo:
+    def formatear_json(self,ruta):
+
+        try:
+        # Leer el archivo JSON
+            with open(ruta, 'r', encoding='utf-8') as archivo:
+                contenido = json.load(archivo)  # Cargar el contenido como objeto Python
+            
+            # Sobrescribir el archivo con el contenido formateado
+            with open(ruta, 'w', encoding='utf-8') as archivo:
+                json.dump(contenido, archivo, indent=4, ensure_ascii=False)  # Guardar con formato legible
+
+            
+        except json.JSONDecodeError:
+            print("Error: El archivo no contiene un JSON válido.")
+        except Exception as e:
+            print(f"Error inesperado: {e}")
+"""
+a = Cripto()
+a.encriptar_json_final_hacienda()
+
+
+ruta = "Organizaciones/Servidor_Hacienda/Base_de_datos.json"
+with open(ruta, 'rb') as archivo:
             morosos = archivo.read()
-        ruta_mensaje = "Organizaciones/Servidor_Hacienda/Base_de_datos.json"
-        with open(ruta_mensaje, 'wb') as archivo:
+ruta_mensaje = "Base_de_datos_Hacienda_temp.json"
+
+with open(ruta_mensaje, 'wb') as archivo:
             archivo.write(morosos)
-        if os.path.exists("Mensajes"):
-            os.rmdir("Mensajes")
-        ruta_clave = "Organizaciones/Servidor_Hacienda/clave_sesión.txt"
-        if os.path.exists(ruta_clave):
-            os.remove(ruta_clave)
-        return
-        
+"""
