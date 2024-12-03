@@ -203,4 +203,35 @@ class Certificates():
             archivo.write(cert_pem)
             archivo.write(private_key_pem)
 
-    
+    def verify_certificate_chain(self, cert_path, chain_paths):
+        try:
+            child_cert = self.load_certificate_from_file(cert_path)
+            for chain_path in chain_paths:
+                parent_cert = self.load_certificate_from_file(chain_path)
+                parent_public_key = parent_cert.public_key()
+                parent_public_key.verify(
+                    signature = child_cert.signature,
+                    data = child_cert.tbs_certificate_bytes,
+                    padding = padding.PKCS1v15(),
+                    algorithm = SHA256()
+                )
+                print(f"Certificado {child_cert.subject.rfc4514_string()} validado con {parent_cert.subject.rfc4514_string()}")
+                child_cert = parent_cert
+            print("La cadena de confianza es válida")
+            return True
+           
+        except Exception as e:
+             print(f"Error al validar la clave pública: {e}")
+             return False
+        
+    def verify_inspector_certificates(self, json_path, inspector_name, chain_paths):
+        cert_path = self.load_certificate_from_json(json_path, inspector_name)
+        if not cert_path:
+            return False
+        
+        is_valid = self.verify_certificate_chain(cert_path, chain_paths)
+        
+        if os.path.exists(cert_path):
+            os.remove(cert_path)
+        
+        return is_valid
