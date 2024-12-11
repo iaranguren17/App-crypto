@@ -252,7 +252,7 @@ class Certificates():
             return True
            
         except Exception as e:
-             print(f"Error al validar la clave pública: {e}")
+             
              return False
         
     def verify_inspector_certificates(self, json_path, inspector_name, chain_paths):
